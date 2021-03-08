@@ -16,11 +16,11 @@
 
 package org.wallride.autoconfigure;
 
-import org.hibernate.dialect.MySQL5InnoDBDialect;
+import org.hibernate.dialect.MySQL5Dialect;
 import org.hibernate.dialect.function.SQLFunctionTemplate;
 import org.hibernate.type.StandardBasicTypes;
 
-public class ExtendedMySQL5InnoDBDialect extends MySQL5InnoDBDialect {
+public class ExtendedMySQL5InnoDBDialect extends MySQL5Dialect {
 
 	public ExtendedMySQL5InnoDBDialect() {
 		super();

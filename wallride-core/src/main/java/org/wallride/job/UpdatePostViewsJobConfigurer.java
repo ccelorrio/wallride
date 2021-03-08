@@ -16,6 +16,8 @@
 
 package org.wallride.job;
 
+import javax.inject.Inject;
+
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -25,7 +27,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
-import javax.inject.Inject;
+import com.google.api.services.analyticsreporting.v4.model.ReportRow;
 
 @Import({
 		UpdatePostViewsItemReader.class,
@@ -50,11 +52,12 @@ public class UpdatePostViewsJobConfigurer {
 				.build();
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Step updatePostViewsStep() {
 		return stepBuilders.get("updatePostViewsStep")
 				.chunk(10)
-				.reader((ItemReader) updatePostViewsItemReader)
-				.writer((ItemWriter) updatePostViewsItemWriter)
+				.reader((ItemReader<ReportRow>) updatePostViewsItemReader)				
+				.writer( (ItemWriter) updatePostViewsItemWriter)
 				.build();
 	}
 }

@@ -16,25 +16,30 @@
 
 package org.wallride.web.controller.guest.user;
 
-import org.hibernate.validator.constraints.Email;
+import java.io.Serializable;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
 import org.wallride.domain.PersonalName;
 import org.wallride.model.ProfileUpdateRequest;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import java.io.Serializable;
-
+@SuppressWarnings("serial")
 public class ProfileUpdateForm implements Serializable {
 
+	@NotNull
 	@Email
 	private String email;
+	
 	@NotNull
 	@Pattern(regexp = "^[\\w\\-]+$")
 	private String loginId;
+	
 	@Valid
 	private Name name = new Name();
-	@NotNull
+
 
 	public String getEmail() {
 		return email;
@@ -58,7 +63,7 @@ public class ProfileUpdateForm implements Serializable {
 
 	public void setName(Name name) {
 		this.name = name;
-	}
+	}	
 
 	public ProfileUpdateRequest toProfileUpdateRequest() {
 		ProfileUpdateRequest request = new ProfileUpdateRequest();

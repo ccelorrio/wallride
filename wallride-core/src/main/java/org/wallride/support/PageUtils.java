@@ -131,6 +131,6 @@ public class PageUtils {
 	}
 
 	public org.springframework.data.domain.Page<Page> search(PageSearchRequest request, int size) {
-		return pageService.getPages(request, new PageRequest(0, size));
+		return pageService.getPages(request, PageRequest.of(0, size));
 	}
 }

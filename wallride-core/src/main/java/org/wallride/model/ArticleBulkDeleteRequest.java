@@ -19,6 +19,7 @@ package org.wallride.model;
 import java.io.Serializable;
 import java.util.List;
 
+@SuppressWarnings("serial")
 public class ArticleBulkDeleteRequest implements Serializable {
 
 	private List<Long> ids;

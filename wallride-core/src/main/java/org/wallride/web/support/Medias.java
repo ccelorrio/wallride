@@ -22,12 +22,9 @@ import org.wallride.domain.Media;
 
 public class Medias {
 
-	private IExpressionContext context;
-
 	private WallRideProperties wallRideProperties;
 
 	public Medias(IExpressionContext context, WallRideProperties wallRideProperties) {
-		this.context = context;
 		this.wallRideProperties = wallRideProperties;
 	}
 

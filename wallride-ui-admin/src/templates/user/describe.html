@@ -92,7 +92,11 @@
 									<td th:text="${user.email}">メールアドレス</td>
 								</tr>
 								<tr>
-									<th>プロフィール</th>
+									<th th:text="#{Role}">メールアドレス</th>
+									<td th:text="${user.roles}">メールアドレス</td>
+								</tr>
+								<tr>
+									<th th:text="#{Description}">プロフィール</th>
 									<td>
 										<pre th:utext="${user.description}"></pre>
 									</td>

@@ -75,7 +75,7 @@ public class PageRestController {
 //	}
 
 	@RequestMapping(value="/{language}/pages", method=RequestMethod.POST)
-	public @ResponseBody DomainObjectSavedModel save(
+	public @ResponseBody DomainObjectSavedModel<?> save(
 			@Valid PageCreateForm form,
 			BindingResult result,
 			AuthorizedUser authorizedUser,

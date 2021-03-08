@@ -24,12 +24,9 @@ import java.util.List;
 
 public class Tags {
 
-	private IExpressionContext context;
-
 	private TagUtils tagUtils;
 
 	public Tags(IExpressionContext context, TagUtils TagUtils) {
-		this.context = context;
 		this.tagUtils = TagUtils;
 	}
 

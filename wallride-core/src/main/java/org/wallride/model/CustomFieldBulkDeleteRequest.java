@@ -19,6 +19,7 @@ package org.wallride.model;
 import java.io.Serializable;
 import java.util.List;
 
+@SuppressWarnings("serial")
 public class CustomFieldBulkDeleteRequest implements Serializable {
 
 	private List<Long> ids;

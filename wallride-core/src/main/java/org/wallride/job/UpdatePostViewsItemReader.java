@@ -16,8 +16,15 @@
 
 package org.wallride.job;
 
-import com.google.api.services.analytics.Analytics;
-import com.google.api.services.analytics.model.GaData;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import javax.inject.Inject;
+
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.database.AbstractPagingItemReader;
 import org.springframework.stereotype.Component;
@@ -28,16 +35,20 @@ import org.wallride.exception.GoogleAnalyticsException;
 import org.wallride.service.BlogService;
 import org.wallride.support.GoogleAnalyticsUtils;
 
-import javax.inject.Inject;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import com.google.api.services.analyticsreporting.v4.AnalyticsReporting;
+import com.google.api.services.analyticsreporting.v4.model.DateRange;
+import com.google.api.services.analyticsreporting.v4.model.Dimension;
+import com.google.api.services.analyticsreporting.v4.model.GetReportsRequest;
+import com.google.api.services.analyticsreporting.v4.model.GetReportsResponse;
+import com.google.api.services.analyticsreporting.v4.model.Metric;
+import com.google.api.services.analyticsreporting.v4.model.OrderBy;
+import com.google.api.services.analyticsreporting.v4.model.ReportData;
+import com.google.api.services.analyticsreporting.v4.model.ReportRequest;
+import com.google.api.services.analyticsreporting.v4.model.ReportRow;
 
 @Component
 @StepScope
-public class UpdatePostViewsItemReader extends AbstractPagingItemReader<List> {
+public class UpdatePostViewsItemReader extends AbstractPagingItemReader<ReportRow> {
 
 	@Inject
 	private BlogService blogService;
@@ -66,27 +77,59 @@ public class UpdatePostViewsItemReader extends AbstractPagingItemReader<List> {
 			return;
 		}
 
-		Analytics analytics = GoogleAnalyticsUtils.buildClient(googleAnalytics);
+		AnalyticsReporting analytics = GoogleAnalyticsUtils.buildClient(googleAnalytics);
 
 		try {
 			LocalDate now = LocalDate.now();
 			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-			Analytics.Data.Ga.Get request = analytics.data().ga()
-					.get(googleAnalytics.getProfileId(), now.minusYears(1).format(dateTimeFormatter), now.format(dateTimeFormatter), "ga:pageViews")
-//						.setDimensions(String.format("ga:dimension%d", googleAnalytics.getCustomDimensionIndex()))
-//						.setSort(String.format("-ga:dimension%d", googleAnalytics.getCustomDimensionIndex()))
-					.setDimensions(String.format("ga:pagePath", googleAnalytics.getCustomDimensionIndex()))
-					.setSort(String.format("-ga:pageViews", googleAnalytics.getCustomDimensionIndex()))
-					.setStartIndex(getPage() * getPageSize() + 1)
-					.setMaxResults(getPageSize());
+			
+			// Create the DateRange object.
+		    DateRange dateRange = new DateRange();
+		    dateRange.setStartDate(now.minusYears(1).format(dateTimeFormatter));
+		    dateRange.setEndDate(now.format(dateTimeFormatter));
+		    
+		    // Create the Metrics object.
+		    Metric pageViews = new Metric()
+		        .setExpression("ga:pageViews")
+		        .setAlias("pageViews");
+			
+			//Create the Dimensions object.
+		    Dimension dimension = new Dimension()
+		        .setName(String.format("ga:pagePath", googleAnalytics.getCustomDimensionIndex()));
+		    
+		    OrderBy orderBy = new OrderBy()
+		    		.setFieldName("ga:pageViews")
+		    		.setSortOrder("DESCENDING");
+			
+			// Create the ReportRequest object.
+		    ReportRequest reportRequest = new ReportRequest()
+		        .setViewId(googleAnalytics.getProfileId())
+		        .setDateRanges(Arrays.asList(dateRange))
+		        .setDimensions(Arrays.asList(dimension))
+		        .setMetrics(Arrays.asList(pageViews))
+		        .setOrderBys(Arrays.asList(orderBy))
+		        .setPageToken("" + getPage() * getPageSize())
+		        .setPageSize(getPageSize());
+		    		   
+		    logger.info(reportRequest.toString());
+		    ArrayList<ReportRequest> reportRequests = new ArrayList<ReportRequest>();
+		    reportRequests.add(reportRequest);
 
-			logger.info(request.toString());
-			final GaData gaData = request.execute();
-			if (CollectionUtils.isEmpty(gaData.getRows())) {
+		    // Create the GetReportsRequest object.
+		    GetReportsRequest getReport = new GetReportsRequest()
+		        .setReportRequests(reportRequests);
+		    
+			// Call the batchGet method.
+			final GetReportsResponse reportResponse = analytics.reports().batchGet(getReport).execute();
+			
+			ReportData reportData = reportResponse.getReports().get(0).getData();
+			
+			if (CollectionUtils.isEmpty(reportData.getRows())) {
 				return;
 			}
 
-			results.addAll(gaData.getRows());
+			logger.info("INFO FROM GOOGLE ANALYTICS reportData: " + reportData);
+			results.addAll(reportData.getRows());
 		} catch (IOException e) {
 			logger.warn("Failed to synchronize with Google Analytics", e);
 			throw new GoogleAnalyticsException(e);

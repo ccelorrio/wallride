@@ -16,8 +16,13 @@
 
 package org.wallride.autoconfigure;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.thymeleaf.ThymeleafProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -42,16 +47,22 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 import org.wallride.service.BlogService;
 import org.wallride.support.CodeFormatAnnotationFormatterFactory;
 import org.wallride.web.controller.admin.DashboardController;
-import org.wallride.web.support.*;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import org.wallride.web.support.AuthorizedUserMethodArgumentResolver;
+import org.wallride.web.support.DefaultModelAttributeInterceptor;
+import org.wallride.web.support.ExtendedThymeleafViewResolver;
+import org.wallride.web.support.PathVariableLocaleResolver;
+import org.wallride.web.support.SetupRedirectInterceptor;
 
 @Configuration
 @ComponentScan(basePackageClasses = DashboardController.class)
 public class WebAdminConfiguration extends DelegatingWebMvcConfiguration {
 
+	@Autowired
+	private ApplicationContext applicationContext;
+
+	@Autowired
+	private WallRideProperties wallRideProperties;
+	
 	@Autowired
 	private MessageCodesResolver messageCodesResolver;
 
@@ -72,6 +83,7 @@ public class WebAdminConfiguration extends DelegatingWebMvcConfiguration {
 
 	@Autowired
 	private ThymeleafProperties properties;
+
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -96,9 +108,6 @@ public class WebAdminConfiguration extends DelegatingWebMvcConfiguration {
 	public void addInterceptors(InterceptorRegistry registry) {
 		WebContentInterceptor webContentInterceptor = new WebContentInterceptor();
 		webContentInterceptor.setCacheSeconds(0);
-		webContentInterceptor.setUseExpiresHeader(true);
-		webContentInterceptor.setUseCacheControlHeader(true);
-		webContentInterceptor.setUseCacheControlNoStore(true);
 		registry.addInterceptor(webContentInterceptor);
 
 		registry.addInterceptor(defaultModelAttributeInterceptor);
@@ -112,6 +121,22 @@ public class WebAdminConfiguration extends DelegatingWebMvcConfiguration {
 
 	// additional webmvc-related beans
 
+	public ITemplateResolver adminHomePathTemplateResolver() {
+		WallRideResourceTemplateResolver resolver = new WallRideResourceTemplateResolver();
+//		resolver.setResourceResolver(wallRideResourceResourceResolver);
+		resolver.setApplicationContext(applicationContext);
+		resolver.setPrefix(wallRideProperties.getHome() + "themes/admin/templates/");
+		System.out.println(wallRideProperties.getHome() + "themes/admin/templates/");
+		resolver.setSuffix(properties.getSuffix());
+		resolver.setTemplateMode(properties.getMode());
+		resolver.setCharacterEncoding(properties.getEncoding().name());
+		resolver.setCacheable(properties.isCache());
+		System.out.println("Cacheable " + properties.isCache());
+		resolver.setOrder(1);
+		return resolver;
+	}
+	
+	
 	@Bean(name = "adminTemplateResolver")
 	public ITemplateResolver adminTemplateResolver() {
 		WallRideResourceTemplateResolver resolver = new WallRideResourceTemplateResolver();
@@ -144,6 +169,7 @@ public class WebAdminConfiguration extends DelegatingWebMvcConfiguration {
 	public SpringTemplateEngine templateEngine() {
 		SpringTemplateEngine engine = new SpringTemplateEngine();
 		Set<ITemplateResolver> resolvers = new HashSet<>();
+		resolvers.add(adminHomePathTemplateResolver());
 		resolvers.add(adminTemplateResolver());
 		engine.setTemplateResolvers(resolvers);
 
@@ -152,6 +178,7 @@ public class WebAdminConfiguration extends DelegatingWebMvcConfiguration {
 		dialects.add(new Java8TimeDialect());
 		dialects.add(wallRideThymeleafDialect);
 		engine.setAdditionalDialects(dialects);
+		
 		return engine;
 	}
 
@@ -178,4 +205,5 @@ public class WebAdminConfiguration extends DelegatingWebMvcConfiguration {
 		pathVariableLocaleResolver.setBlogService(blogService);
 		return pathVariableLocaleResolver;
 	}
+
 }

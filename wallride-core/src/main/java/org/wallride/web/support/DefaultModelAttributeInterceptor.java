@@ -16,13 +16,19 @@
 
 package org.wallride.web.support;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -33,18 +39,9 @@ import org.wallride.domain.BlogLanguage;
 import org.wallride.service.BlogService;
 import org.wallride.support.AuthorizedUser;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-public class DefaultModelAttributeInterceptor extends HandlerInterceptorAdapter {
+public class DefaultModelAttributeInterceptor implements HandlerInterceptor {
 
 	private BlogService blogService;
-
-	private static Logger logger = LoggerFactory.getLogger(DefaultModelAttributeInterceptor.class);
 
 	public void setBlogService(BlogService blogService) {
 		this.blogService = blogService;

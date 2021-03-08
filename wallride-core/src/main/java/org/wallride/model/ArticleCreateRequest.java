@@ -16,8 +16,6 @@
 
 package org.wallride.model;
 
-import org.wallride.web.controller.admin.article.CustomFieldValueEditForm;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,6 +23,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.wallride.web.controller.admin.article.CustomFieldValueEditForm;
+
+@SuppressWarnings("serial")
 public class ArticleCreateRequest implements Serializable {
 
 	private String code;

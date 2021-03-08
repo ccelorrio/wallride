@@ -1,5 +1,9 @@
 package org.wallride.autoconfigure;
 
+import java.util.EnumSet;
+
+import javax.servlet.DispatcherType;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletRegistrationBean;
@@ -21,9 +25,6 @@ import org.springframework.web.servlet.DispatcherServlet;
 import org.tuckey.web.filters.urlrewrite.UrlRewriteFilter;
 import org.wallride.service.BlogService;
 import org.wallride.web.support.ExtendedUrlRewriteFilter;
-
-import javax.servlet.DispatcherType;
-import java.util.EnumSet;
 
 @Configuration
 public class WallRideServletConfiguration implements ResourceLoaderAware {
@@ -65,11 +66,11 @@ public class WallRideServletConfiguration implements ResourceLoaderAware {
 	}
 
 	@Bean
-	public FilterRegistrationBean urlRewriteFilterRegistration() {
+	public FilterRegistrationBean<DelegatingFilterProxy> urlRewriteFilterRegistration() {
 		DelegatingFilterProxy proxy = new DelegatingFilterProxy("urlRewriteFilter");
 		proxy.setTargetFilterLifecycle(true);
 
-		FilterRegistrationBean registration = new FilterRegistrationBean();
+		FilterRegistrationBean<DelegatingFilterProxy> registration = new FilterRegistrationBean<DelegatingFilterProxy>();
 		registration.setName("urlRewriteFilter");
 		registration.setFilter(proxy);
 		registration.setDispatcherTypes(EnumSet.of(DispatcherType.REQUEST));
@@ -106,8 +107,8 @@ public class WallRideServletConfiguration implements ResourceLoaderAware {
 	}
 
 	@Bean
-	public ServletRegistrationBean adminServletRegistrationBean() {
-		ServletRegistrationBean registration = new ServletRegistrationBean(adminDispatcherServlet());
+	public ServletRegistrationBean<DispatcherServlet> adminServletRegistrationBean() {
+		ServletRegistrationBean<DispatcherServlet> registration = new ServletRegistrationBean<DispatcherServlet>(adminDispatcherServlet());
 		registration.setName(ADMIN_SERVLET_NAME);
 		registration.setLoadOnStartup(2);
 		registration.addUrlMappings(ADMIN_SERVLET_PATH + "/*");

@@ -159,7 +159,7 @@ public class CustomFieldService {
 	}
 
 	public Page<CustomField> getCustomFields(CustomFieldSearchRequest request) {
-		Pageable pageable = new PageRequest(0, 10);
+		Pageable pageable = PageRequest.of(0, 10);
 		return getCustomFields(request, pageable);
 	}
 

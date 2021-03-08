@@ -16,6 +16,8 @@
 
 package org.wallride.web.controller.admin.post;
 
+import javax.inject.Inject;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,8 +29,6 @@ import org.wallride.domain.Page;
 import org.wallride.domain.Post;
 import org.wallride.service.PostService;
 import org.wallride.web.support.HttpNotFoundException;
-
-import javax.inject.Inject;
 
 @Controller
 @RequestMapping(value="/{language}/posts/describe", method= RequestMethod.GET)

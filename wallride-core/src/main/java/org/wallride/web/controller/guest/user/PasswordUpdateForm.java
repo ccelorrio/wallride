@@ -22,6 +22,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class PasswordUpdateForm implements Serializable {
 
 	@NotNull

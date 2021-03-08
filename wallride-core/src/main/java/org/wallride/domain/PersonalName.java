@@ -16,16 +16,22 @@
 
 package org.wallride.domain;
 
-import org.hibernate.search.annotations.Field;
+import java.io.Serializable;
 
 import javax.persistence.Embeddable;
-import java.io.Serializable;
+
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Store;
 
 @Embeddable
 @SuppressWarnings("serial")
 public class PersonalName implements Serializable {
 
-	@Field
+	@Field(index = Index.YES, store = Store.NO,
+		analyze = Analyze.YES, analyzer = @Analyzer(definition = "customanalyzer"))
 	private String firstName;
 
 	@Field
@@ -56,6 +62,6 @@ public class PersonalName implements Serializable {
 	
 	@Override
 	public String toString() {
-		return getLastName() + " " + getFirstName();
+		return getFirstName() + " " + getLastName();
 	}
 }

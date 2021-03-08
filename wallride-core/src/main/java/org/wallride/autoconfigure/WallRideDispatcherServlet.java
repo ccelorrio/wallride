@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("serial")
 public class WallRideDispatcherServlet extends DispatcherServlet {
 
 	private boolean detectParentHandlerMappings;

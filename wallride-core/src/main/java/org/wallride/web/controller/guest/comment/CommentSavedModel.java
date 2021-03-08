@@ -23,6 +23,7 @@ import org.wallride.web.support.DomainObjectSavedModel;
 
 import java.time.LocalDateTime;
 
+@SuppressWarnings("serial")
 public class CommentSavedModel extends DomainObjectSavedModel<Long> {
 
 	private String authorName;

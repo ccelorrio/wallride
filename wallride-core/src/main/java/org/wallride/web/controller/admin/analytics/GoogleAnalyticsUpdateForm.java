@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class GoogleAnalyticsUpdateForm implements Serializable {
 
 	@NotNull

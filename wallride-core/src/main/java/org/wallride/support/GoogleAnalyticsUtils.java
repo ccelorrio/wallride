@@ -16,6 +16,17 @@
 
 package org.wallride.support;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.security.PrivateKey;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wallride.domain.GoogleAnalytics;
+import org.wallride.exception.GoogleAnalyticsException;
+
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequest;
@@ -24,18 +35,8 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.SecurityUtils;
-import com.google.api.services.analytics.Analytics;
-import com.google.api.services.analytics.AnalyticsScopes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wallride.domain.GoogleAnalytics;
-import org.wallride.exception.GoogleAnalyticsException;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.security.PrivateKey;
-import java.util.HashSet;
-import java.util.Set;
+import com.google.api.services.analyticsreporting.v4.AnalyticsReporting;
+import com.google.api.services.analyticsreporting.v4.AnalyticsReportingScopes;
 
 public abstract class GoogleAnalyticsUtils {
 
@@ -44,9 +45,11 @@ public abstract class GoogleAnalyticsUtils {
 	public static final int RETRY_INTERVAL = 5000; // milliseconds
 
 	private static Logger logger = LoggerFactory.getLogger(GoogleAnalyticsUtils.class);
+	  
+	  
 
-	public static Analytics buildClient(GoogleAnalytics googleAnalytics) {
-		Analytics analytics;
+	public static AnalyticsReporting buildClient(GoogleAnalytics googleAnalytics) {
+		AnalyticsReporting analytics;
 		try {
 			PrivateKey privateKey= SecurityUtils.loadPrivateKeyFromKeyStore(
 					SecurityUtils.getPkcs12KeyStore(), new ByteArrayInputStream(googleAnalytics.getServiceAccountP12FileContent()),
@@ -56,7 +59,7 @@ public abstract class GoogleAnalyticsUtils {
 			JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 
 			Set<String> scopes = new HashSet<>();
-			scopes.add(AnalyticsScopes.ANALYTICS_READONLY);
+			scopes.add(AnalyticsReportingScopes.ANALYTICS_READONLY);
 
 			final GoogleCredential credential = new GoogleCredential.Builder().setTransport(httpTransport)
 					.setJsonFactory(jsonFactory)
@@ -73,7 +76,7 @@ public abstract class GoogleAnalyticsUtils {
 					httpRequest.setReadTimeout(3 * 60000);  // 3 minutes read timeout
 				}
 			};
-			analytics = new Analytics.Builder(httpTransport, jsonFactory, httpRequestInitializer)
+			analytics = new AnalyticsReporting.Builder(httpTransport, jsonFactory, httpRequestInitializer)
 					.setApplicationName("WallRide")
 					.build();
 		} catch (Exception e) {
@@ -83,4 +86,6 @@ public abstract class GoogleAnalyticsUtils {
 
 		return analytics;
 	}
+	
+	
 }

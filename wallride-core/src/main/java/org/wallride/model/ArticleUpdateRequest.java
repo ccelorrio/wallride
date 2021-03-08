@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@SuppressWarnings("serial")
 public class ArticleUpdateRequest implements Serializable {
 
 	private Long id;

@@ -16,6 +16,11 @@
 
 package org.wallride.web.controller.admin.tag;
 
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -23,30 +28,28 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.FlashMap;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.wallride.domain.Tag;
 import org.wallride.exception.DuplicateNameException;
-import org.wallride.service.ArticleService;
 import org.wallride.service.TagService;
 import org.wallride.support.AuthorizedUser;
 import org.wallride.web.support.DomainObjectSavedModel;
 import org.wallride.web.support.DomainObjectUpdatedModel;
 import org.wallride.web.support.RestValidationErrorModel;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
 @Controller
 public class TagRestController {
 
 	@Inject
 	private TagService tagService;
-	@Inject
-	private ArticleService articleService;
+
 	@Inject
 	private MessageSourceAccessor messageSourceAccessor;
 
@@ -60,7 +63,7 @@ public class TagRestController {
 	}
 
 	@RequestMapping(value="/{language}/tags", method=RequestMethod.POST)
-	public @ResponseBody DomainObjectSavedModel save(
+	public @ResponseBody DomainObjectSavedModel<?> save(
 			@Valid TagCreateForm form,
 			BindingResult errors,
 			AuthorizedUser authorizedUser,
@@ -85,7 +88,7 @@ public class TagRestController {
 	}
 
 	@RequestMapping(value="/{language}/tags/{id}", method=RequestMethod.POST)
-	public @ResponseBody DomainObjectUpdatedModel update(
+	public @ResponseBody DomainObjectUpdatedModel<?> update(
 			@Valid TagEditForm form,
 			BindingResult errors,
 			@PathVariable long id,
@@ -112,7 +115,7 @@ public class TagRestController {
 	}
 
 	@RequestMapping(value = "/{language}/tags/merge", method = RequestMethod.POST)
-	public @ResponseBody DomainObjectSavedModel merge(
+	public @ResponseBody DomainObjectSavedModel<?> merge(
 			@Valid TagMergeForm form,
 			BindingResult errors,
 			AuthorizedUser authorizedUser,

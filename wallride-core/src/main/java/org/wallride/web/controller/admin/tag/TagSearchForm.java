@@ -21,6 +21,7 @@ import org.wallride.model.TagSearchRequest;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class TagSearchForm implements Serializable {
 
 	private String keyword;

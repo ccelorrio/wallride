@@ -1,14 +1,18 @@
 package org.wallride.autoconfigure;
 
-import com.amazonaws.services.s3.model.AmazonS3Exception;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.thymeleaf.spring5.templateresource.SpringResourceTemplateResource;
 import org.thymeleaf.templateresource.ITemplateResource;
 import org.thymeleaf.util.StringUtils;
 import org.thymeleaf.util.Validate;
-
-import java.io.*;
 
 /**
  * @author OGAWA, Takeshi
@@ -53,19 +57,20 @@ public class WallRideResourceTemplateResource implements ITemplateResource {
 
 	public Reader reader() throws IOException {
 		// Will never return null, but an IOException if not found
-		try {
+//		try {
 			final InputStream inputStream = this.resource.getInputStream();
 			if (!StringUtils.isEmptyOrWhitespace(this.characterEncoding)) {
 				return new BufferedReader(new InputStreamReader(new BufferedInputStream(inputStream), this.characterEncoding));
 			}
 
 			return new BufferedReader(new InputStreamReader(new BufferedInputStream(inputStream)));
-		} catch (AmazonS3Exception e) {
-			if (e.getStatusCode() == 404) {
-				throw new IOException(e);
-			}
-			throw e;
-		}
+//		} 
+//		catch (AmazonS3Exception e) {
+//			if (e.getStatusCode() == 404) {
+//				throw new IOException(e);
+//			}
+//			throw e;
+//		}
 	}
 
 	public ITemplateResource relative(final String relativeLocation) {

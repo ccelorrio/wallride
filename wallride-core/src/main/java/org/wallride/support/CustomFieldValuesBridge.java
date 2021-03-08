@@ -11,6 +11,7 @@ public class CustomFieldValuesBridge implements FieldBridge {
 
 	@Override
 	public void set(String name, Object value, Document document, LuceneOptions luceneOptions) {
+		@SuppressWarnings("unchecked")
 		Collection<CustomFieldValue> customFieldValues = (Collection<CustomFieldValue>) value;
 		if (customFieldValues != null) {
 			for (CustomFieldValue cfv : customFieldValues) {

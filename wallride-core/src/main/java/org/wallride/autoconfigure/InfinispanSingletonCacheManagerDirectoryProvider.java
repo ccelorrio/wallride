@@ -16,6 +16,10 @@
 
 package org.wallride.autoconfigure;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Properties;
+
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockFactory;
 import org.hibernate.search.backend.BackendFactory;
@@ -23,6 +27,7 @@ import org.hibernate.search.cfg.Environment;
 import org.hibernate.search.engine.service.spi.ServiceManager;
 import org.hibernate.search.indexes.spi.DirectoryBasedIndexManager;
 import org.hibernate.search.spi.BuildContext;
+import org.hibernate.search.store.DirectoryProvider;
 import org.hibernate.search.store.spi.DirectoryHelper;
 import org.hibernate.search.store.spi.LockFactoryCreator;
 import org.infinispan.Cache;
@@ -31,7 +36,7 @@ import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.hibernate.search.impl.AsyncDeleteExecutorService;
 import org.infinispan.hibernate.search.impl.LoggerFactory;
 import org.infinispan.hibernate.search.logging.Log;
-import org.infinispan.hibernate.search.spi.InfinispanDirectoryProvider;
+import org.infinispan.hibernate.search.spi.CacheManagerService;
 import org.infinispan.hibernate.search.spi.InfinispanIntegration;
 import org.infinispan.hibernate.search.util.configuration.impl.ConfigurationParseHelper;
 import org.infinispan.lucene.FileCacheKey;
@@ -40,11 +45,7 @@ import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.remoting.transport.Address;
 import org.infinispan.util.concurrent.WithinThreadExecutor;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Properties;
-
-public class InfinispanSingletonCacheManagerDirectoryProvider implements org.hibernate.search.store.DirectoryProvider<Directory> {
+public class InfinispanSingletonCacheManagerDirectoryProvider implements DirectoryProvider<Directory> {
 
 	private static final Log log = LoggerFactory.make();
 
@@ -58,8 +59,7 @@ public class InfinispanSingletonCacheManagerDirectoryProvider implements org.hib
 
 	private Directory directory;
 
-//	private EmbeddedCacheManager cacheManager;
-	static EmbeddedCacheManager cacheManager; // #### Attension ###
+	static EmbeddedCacheManager cacheManager;
 
 	private AsyncDeleteExecutorService deletesExecutor;
 
@@ -165,7 +165,7 @@ public class InfinispanSingletonCacheManagerDirectoryProvider implements org.hib
 		if (cacheManager.getCacheConfiguration(metadataCacheName) == null) {
 			// Synchronizes on the class instead of instance, since multiple caches may have the provider
 			// and only 1 can define this cache
-			synchronized (InfinispanDirectoryProvider.class) {
+			synchronized (InfinispanSingletonCacheManagerDirectoryProvider.class) {
 				if (cacheManager.getCacheConfiguration(metadataCacheName) == null) {
 					log.missingIndexCacheConfiguration(metadataCacheName);
 					ConfigurationBuilder builder = new ConfigurationBuilder();
@@ -185,7 +185,7 @@ public class InfinispanSingletonCacheManagerDirectoryProvider implements org.hib
 		}
 
 		if (cacheManager.getCacheConfiguration(dataCacheName) == null) {
-			synchronized (InfinispanDirectoryProvider.class) {
+			synchronized (InfinispanSingletonCacheManagerDirectoryProvider.class) {
 				if (cacheManager.getCacheConfiguration(dataCacheName) == null) {
 					log.missingIndexCacheConfiguration(dataCacheName);
 					ConfigurationBuilder builder = new ConfigurationBuilder();
@@ -205,7 +205,7 @@ public class InfinispanSingletonCacheManagerDirectoryProvider implements org.hib
 		}
 
 		if (cacheManager.getCacheConfiguration(lockingCacheName) == null) {
-			synchronized (InfinispanDirectoryProvider.class) {
+			synchronized (InfinispanSingletonCacheManagerDirectoryProvider.class) {
 				if (cacheManager.getCacheConfiguration(lockingCacheName) == null) {
 					log.missingIndexCacheConfiguration(lockingCacheName);
 					ConfigurationBuilder builder = new ConfigurationBuilder();
@@ -242,7 +242,7 @@ public class InfinispanSingletonCacheManagerDirectoryProvider implements org.hib
 		} catch (IOException e) {
 			log.unableToCloseLuceneDirectory(directory, e);
 		}
-//		serviceManager.releaseService(CacheManagerService.class);
+		serviceManager.releaseService(CacheManagerService.class);
 		cacheManager.stop(); // #### Attension ###
 		log.debug("Stopped InfinispanDirectory");
 	}
@@ -254,6 +254,10 @@ public class InfinispanSingletonCacheManagerDirectoryProvider implements org.hib
 
 	public EmbeddedCacheManager getCacheManager() {
 		return cacheManager;
+	}
+	
+	protected static void setCacheManager(EmbeddedCacheManager newCacheManager) {
+		cacheManager = newCacheManager;
 	}
 
 	public Address getLockOwner(String indexName, int affinityId, String lockName) {

@@ -80,7 +80,7 @@ public class CustomFieldSearchController {
                 .fromRequest(servletRequest)
                 .queryParams(ControllerUtils.convertBeanForQueryParams(form, conversionService))
                 .build();
-        if (!StringUtils.isEmpty(uriComponents.getQuery())) {
+        if (StringUtils.hasText(uriComponents.getQuery())) {
             model.addAttribute("query", URLDecoder.decode(uriComponents.getQuery(), "UTF-8"));
         }
 

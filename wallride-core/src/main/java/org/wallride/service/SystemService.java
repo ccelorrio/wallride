@@ -16,7 +16,15 @@
 
 package org.wallride.service;
 
-import org.hibernate.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import org.hibernate.CacheMode;
+import org.hibernate.FlushMode;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.slf4j.Logger;
@@ -25,9 +33,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 @Service
 public class SystemService {
@@ -46,10 +51,10 @@ public class SystemService {
 
 		FullTextSession fullTextSession = Search.getFullTextSession((entityManager.unwrap(Session.class)));
 
-		fullTextSession.setFlushMode(FlushMode.MANUAL);
+		fullTextSession.setHibernateFlushMode(FlushMode.MANUAL);
 		fullTextSession.setCacheMode(CacheMode.IGNORE);
 
-		for (Class persistentClass : fullTextSession.getSearchFactory().getIndexedTypes()) {
+		for (Class<?> persistentClass : fullTextSession.getSearchFactory().getIndexedTypes()) {
 			Transaction transaction = fullTextSession.beginTransaction();
 
 			// Scrollable results will avoid loading too many objects in memory

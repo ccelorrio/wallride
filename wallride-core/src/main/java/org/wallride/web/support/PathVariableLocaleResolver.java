@@ -16,24 +16,21 @@
 
 package org.wallride.web.support;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.LocaleResolver;
 import org.wallride.domain.Blog;
 import org.wallride.domain.BlogLanguage;
 import org.wallride.service.BlogService;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Locale;
-import java.util.Map;
-
 public class PathVariableLocaleResolver implements LocaleResolver {
 
 	private BlogService blogService;
-
-	private static Logger logger = LoggerFactory.getLogger(PathVariableLocaleResolver.class);
 
 	public void setBlogService(BlogService blogService) {
 		this.blogService = blogService;
@@ -44,6 +41,7 @@ public class PathVariableLocaleResolver implements LocaleResolver {
 		Blog blog = blogService.getBlogById(Blog.DEFAULT_ID);
 		String defaultLanguage = (blog != null) ? blog.getDefaultLanguage() : null;
 
+		@SuppressWarnings("unchecked")
 		Map<String, Object> pathVariables = (Map<String, Object>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 		String currentLanguage = (String) pathVariables.get("language");
 		if (currentLanguage == null) {

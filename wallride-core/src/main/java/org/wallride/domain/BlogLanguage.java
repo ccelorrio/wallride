@@ -16,18 +16,27 @@
 
 package org.wallride.domain;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.search.annotations.Field;
-
-import javax.persistence.*;
 
 @Entity
 @Table(name = "blog_language", uniqueConstraints = @UniqueConstraint(columnNames = {"blog_id", "language"}))
 @DynamicInsert
 @DynamicUpdate
+@SuppressWarnings("serial")
 public class BlogLanguage extends DomainObject<Long> {
 
 	@Id

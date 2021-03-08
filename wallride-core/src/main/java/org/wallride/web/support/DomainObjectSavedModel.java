@@ -20,6 +20,7 @@ import org.wallride.domain.DomainObject;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class DomainObjectSavedModel<ID extends Serializable> implements Serializable {
 
 	private ID id;

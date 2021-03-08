@@ -16,9 +16,16 @@
 
 package org.wallride.autoconfigure;
 
+import java.time.Duration;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletContext;
+
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.ResourceProperties;
+import org.springframework.boot.autoconfigure.web.WebProperties.Resources;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -45,16 +52,18 @@ import org.wallride.service.BlogService;
 import org.wallride.service.MediaService;
 import org.wallride.support.CodeFormatAnnotationFormatterFactory;
 import org.wallride.support.StringFormatter;
-import org.wallride.web.support.*;
-
-import javax.servlet.ServletContext;
-import java.time.Duration;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import org.wallride.web.support.AtomFeedView;
+import org.wallride.web.support.AuthorizedUserMethodArgumentResolver;
+import org.wallride.web.support.BlogLanguageDataValueProcessor;
+import org.wallride.web.support.BlogLanguageLocaleResolver;
+import org.wallride.web.support.BlogLanguageMethodArgumentResolver;
+import org.wallride.web.support.DefaultModelAttributeInterceptor;
+import org.wallride.web.support.MediaHttpRequestHandler;
+import org.wallride.web.support.RssFeedView;
+import org.wallride.web.support.SetupRedirectInterceptor;
 
 @Configuration
-@EnableConfigurationProperties({ WebMvcProperties.class, ResourceProperties.class })
+@EnableConfigurationProperties({ WebMvcProperties.class })
 public class WallRideWebMvcConfiguration implements WebMvcConfigurer {
 
 	private static final String CLASSPATH_RESOURCE_LOCATION = "classpath:/resources/guest/";
@@ -63,7 +72,7 @@ public class WallRideWebMvcConfiguration implements WebMvcConfigurer {
 	private WallRideProperties wallRideProperties;
 
 	@Autowired
-	private ResourceProperties resourceProperties = new ResourceProperties();
+	private Resources resourceProperties;
 
 	@Autowired
 	private MessageCodesResolver messageCodesResolver;
@@ -124,7 +133,7 @@ public class WallRideWebMvcConfiguration implements WebMvcConfigurer {
 
 		handler.setServletContext(servletContext);
 		handler.setApplicationContext(applicationContext);
-		handler.setContentNegotiationManager(contentNegotiationManager);
+		handler.setMediaTypes(contentNegotiationManager.getMediaTypeMappings());
 
 		handler.setWallRideProperties(wallRideProperties);
 		handler.setMediaService(mediaService);

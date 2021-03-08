@@ -25,7 +25,7 @@
 					<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#wr-blog-nav">
 						<span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
 					</button>
-					<p class="navbar-brand"><img th:src="@{/_admin/resources/img/wr-logo.png}"/></p>
+					<p class="navbar-brand"><img th:src="@{/_admin/resources/img/rdh-logo.png}"/></p>
 				</div>
 				<!-- Collect the nav links, forms, and other content for toggling -->
 				<div class="collapse navbar-collapse">
@@ -44,8 +44,8 @@
 								&nbsp;&nbsp;<span th:text="${USER.name}"></span>
 							</a>
 							<ul class="dropdown-menu">
-								<li><a th:href="@{__${ADMIN_PATH}__/users/describe(id=${USER.id})}"><span class="glyphicon glyphicon-user"></span> <span th:text="#{Profile}">プロフィール</span></a></li>
-								<li><a th:href="@{/_admin/logout}"><span class="glyphicon glyphicon-off"></span> <span th:text="#{LogOut}">ログアウト</span></a></li>
+								<li><a th:href="@{__${ADMIN_PATH}__/users/describe(id=${USER.id})}"><span class="glyphicon glyphicon-user"></span> <span th:text="#{Profile}">Profile</span></a></li>
+								<li><a th:href="@{/logout}"><span class="glyphicon glyphicon-off"></span> <span th:text="#{LogOut}">LogOut</span></a></li>
 							</ul>
 						</li>
 					</ul>
@@ -55,15 +55,15 @@
 				<div class="navbar-collapse">
 					<ul class="nav navbar-nav navbar-left">
 						<li><a th:href="@{__${ADMIN_PATH}__/}" href="/"><span class="glyphicon glyphicon-home"></span></a></li>
-						<li><a th:href="@{__${ADMIN_PATH}__/articles/index}" href="article/index.html"><span class="glyphicon glyphicon-file"></span> <span th:text="#{Articles}">Articles</span></a></li>
-						<li><a th:href="@{__${ADMIN_PATH}__/pages/index}" href="page/index.html"><span class="glyphicon glyphicon-book"></span> <span th:text="#{Pages}">Pages</span></a></li>
-						<li><a th:href="@{__${ADMIN_PATH}__/categories/index}" href="category/index.html"><span class="glyphicon glyphicon-folder-open"></span> <span th:text="#{Categories}">Categories</span></a></li>
-						<li><a th:href="@{__${ADMIN_PATH}__/tags/index}" href="tag/index.html"><span class="glyphicon glyphicon-tag"></span> <span th:text="#{Tags}">Tags</span></a></li>
-						<li><a th:href="@{__${ADMIN_PATH}__/customfields/index}" href="customfield/index.html"><span class="glyphicon glyphicon-wrench"></span> <span th:text="#{CustomField}">Custom field</span></a></li>
-						<li><a th:href="@{__${ADMIN_PATH}__/comments/index}"><span class="glyphicon glyphicon-comment"></span> <span th:text="#{Comments}">Comments</span></a></li>
-						<li><a th:href="@{__${ADMIN_PATH}__/users/index}"><span class="glyphicon glyphicon-user"></span> <span th:text="#{Users}">Users</span></a></li>
-						<li><a th:href="@{__${ADMIN_PATH}__/analytics}"><span class="glyphicon glyphicon-signal"></span> <span th:text="#{GoogleAnalytics}">Google Analytics</span></a></li>
-						<li><a th:href="@{__${ADMIN_PATH}__/system}"><span class="glyphicon glyphicon-cog"></span> <span th:text="#{System}">System</span></a></li>
+						<li><a sec:authorize="hasRole('AUTHOR')" th:href="@{__${ADMIN_PATH}__/articles/index}" href="article/index.html"><span class="glyphicon glyphicon-file"></span> <span th:text="#{Articles}">Articles</span></a></li>
+						<li><a sec:authorize="hasRole('AUTHOR')" th:href="@{__${ADMIN_PATH}__/pages/index}" href="page/index.html"><span class="glyphicon glyphicon-book"></span> <span th:text="#{Pages}">Pages</span></a></li>
+						<li><a sec:authorize="hasRole('BACKOFFICE')" th:href="@{__${ADMIN_PATH}__/categories/index}" href="category/index.html"><span class="glyphicon glyphicon-folder-open"></span> <span th:text="#{Categories}">Categories</span></a></li>
+						<li><a sec:authorize="hasRole('BACKOFFICE')" th:href="@{__${ADMIN_PATH}__/tags/index}" href="tag/index.html"><span class="glyphicon glyphicon-tag"></span> <span th:text="#{Tags}">Tags</span></a></li>
+						<li><a sec:authorize="hasRole('ADMIN')" th:href="@{__${ADMIN_PATH}__/customfields/index}" href="customfield/index.html"><span class="glyphicon glyphicon-wrench"></span> <span th:text="#{CustomField}">Custom field</span></a></li>
+						<li><a sec:authorize="hasRole('EDITOR')" th:href="@{__${ADMIN_PATH}__/comments/index}"><span class="glyphicon glyphicon-comment"></span> <span th:text="#{Comments}">Comments</span></a></li>
+						<li><a sec:authorize="hasRole('ADMIN')" th:href="@{__${ADMIN_PATH}__/users/index}"><span class="glyphicon glyphicon-user"></span> <span th:text="#{Users}">Users</span></a></li>
+						<li><a sec:authorize="hasRole('ADMIN')" th:href="@{__${ADMIN_PATH}__/analytics}"><span class="glyphicon glyphicon-signal"></span> <span th:text="#{GoogleAnalytics}">Google Analytics</span></a></li>
+						<li><a sec:authorize="hasRole('ADMIN')" th:href="@{__${ADMIN_PATH}__/system}"><span class="glyphicon glyphicon-cog"></span> <span th:text="#{System}">System</span></a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						<li class="dropdown">
@@ -94,8 +94,8 @@
 					<h2>Content</h2>
 					<table class="table">
 						<tr>
-							<th th:text="${articleCount}">11</th>
-							<td>Posts</td>
+							<th th:text="${propertiesCount}">11</th>
+							<td>Properties</td>
 						</tr>
 						<tr>
 							<th th:text="${pageCount}">11</th>
@@ -104,6 +104,10 @@
 						<tr>
 							<th th:text="${categoryCount}">11</th>
 							<td>Categories</td>
+						</tr>
+						<tr>
+							<th th:text="${articleCount}">11</th>
+							<td>Blog Posts</td>
 						</tr>
 					</table>
 				</div>

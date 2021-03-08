@@ -16,6 +16,7 @@
 
 package org.wallride.exception;
 
+@SuppressWarnings("serial")
 public class GoogleAnalyticsException extends ServiceException {
 
 	public GoogleAnalyticsException() {

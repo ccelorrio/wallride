@@ -50,6 +50,7 @@ public class ArticleDescribeController {
 		return query;
 	}
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping
 	public String describe(
 			@PathVariable String language,

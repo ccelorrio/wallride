@@ -63,6 +63,7 @@
 											<th th:text="#{Name}">名前</th>
 											<th th:text="#{LoginId}">ログインID</th>
 											<th th:text="#{Email}">メールアドレス</th>
+											<th th:text="#{Role}">メールアドレス</th>
 											<th th:text="#{Posts}" class="text-right">投稿記事数</th>
 										</tr>
 									</thead>
@@ -72,6 +73,7 @@
 											<td th:text="${user.name}"></td>
 											<td th:text="${user.loginId}"></td>
 											<td th:text="${user.email}"></td>
+											<td th:text="${user.roles}"></td>
 											<td th:text="${articleCounts.get(user.id)}?:0" class="text-right"></td>
 										</tr>
 									</tbody>

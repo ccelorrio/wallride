@@ -21,6 +21,7 @@ import org.wallride.domain.BlogLanguage;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+@SuppressWarnings("serial")
 public class CommentCreateRequest implements Serializable {
 
 	private BlogLanguage blogLanguage;

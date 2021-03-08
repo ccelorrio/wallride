@@ -49,8 +49,11 @@ public class User extends DomainObject<Long> {
 
 	public enum Role {
 		ADMIN,
+		AGENT_MANAGER,
+		AGENT,
 		EDITOR,
 		AUTHOR,
+		OWNER,
 		VIEWER,
 	}
 
@@ -91,6 +94,8 @@ public class User extends DomainObject<Long> {
 	@JoinTable(name = "user_role")
 	@Enumerated(EnumType.STRING)
 	@Column(name = "role", length = 20, nullable = false)
+	@IndexedEmbedded(includeEmbeddedObjectId = true)
+	@Field
 	private SortedSet<Role> roles = new TreeSet<>();
 
 	@Override
@@ -156,7 +161,7 @@ public class User extends DomainObject<Long> {
 
 	public void setRoles(SortedSet<Role> roles) {
 		this.roles = roles;
-	}
+	}	
 
 	public String getGravatarUrl(int size) throws UnsupportedEncodingException {
 		String hash = DigestUtils.md5DigestAsHex(getEmail().getBytes("CP1252"));

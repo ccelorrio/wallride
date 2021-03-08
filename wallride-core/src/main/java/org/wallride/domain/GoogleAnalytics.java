@@ -24,6 +24,7 @@ import javax.persistence.Lob;
 import java.io.Serializable;
 
 @Embeddable
+@SuppressWarnings("serial")
 public class GoogleAnalytics implements Serializable {
 
 	@Column(name = "ga_tracking_id", length = 100)

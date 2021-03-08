@@ -35,6 +35,7 @@ import java.util.Set;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
+@SuppressWarnings("deprecation") // TODO Use BCryptPasswordEncoder instead of StandardPasswordEncoder
 public class SetupService {
 
 	@Resource

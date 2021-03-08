@@ -16,6 +16,22 @@
 
 package org.wallride.service;
 
+import java.text.MessageFormat;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.validation.ValidationException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,7 +39,6 @@ import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,7 +56,11 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.validation.*;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
+import org.springframework.validation.MessageCodesResolver;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -54,23 +73,24 @@ import org.wallride.exception.DuplicateEmailException;
 import org.wallride.exception.DuplicateLoginIdException;
 import org.wallride.exception.EmailNotFoundException;
 import org.wallride.exception.ServiceException;
-import org.wallride.model.*;
+import org.wallride.model.PasswordResetTokenCreateRequest;
+import org.wallride.model.PasswordUpdateRequest;
+import org.wallride.model.ProfileUpdateRequest;
+import org.wallride.model.UserBulkDeleteRequest;
+import org.wallride.model.UserDeleteRequest;
+import org.wallride.model.UserInvitationCreateRequest;
+import org.wallride.model.UserInvitationDeleteRequest;
+import org.wallride.model.UserInvitationResendRequest;
+import org.wallride.model.UserSearchRequest;
+import org.wallride.model.UserUpdateRequest;
 import org.wallride.repository.PasswordResetTokenRepository;
 import org.wallride.repository.UserInvitationRepository;
 import org.wallride.repository.UserRepository;
 import org.wallride.support.AuthorizedUser;
 
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import javax.validation.ValidationException;
-import java.text.MessageFormat;
-import java.time.LocalDateTime;
-import java.util.*;
-
 @Service
 @Transactional(rollbackFor=Exception.class)
+@SuppressWarnings("deprecation") // TODO Use BCryptPasswordEncoder instead of StandardPasswordEncoder
 public class UserService {
 
 	@Inject
@@ -91,9 +111,6 @@ public class UserService {
 
 	@Inject
 	private MessageSourceAccessor messageSourceAccessor;
-
-	@Inject
-	private Environment environment;
 
 	@Inject
 	private MailProperties mailProperties;
@@ -416,7 +433,7 @@ public class UserService {
 	}
 
 	public Page<User> getUsers(UserSearchRequest request) {
-		Pageable pageable = new PageRequest(0, 10);
+		Pageable pageable = PageRequest.of(0, 10);
 		return getUsers(request, pageable);
 	}
 
@@ -424,7 +441,7 @@ public class UserService {
 		return userRepository.search(request, pageable);
 	}
 
-	private List<User> getUsers(Collection<Long> ids) {
+	public List<User> getUsers(Collection<Long> ids) {
 		Set<User> results = new LinkedHashSet<User>(userRepository.findAllByIdIn(ids));
 		List<User> users = new ArrayList<>();
 		for (long id : ids) {
@@ -449,7 +466,7 @@ public class UserService {
 
 //	@Cacheable(value="users", key="'invitations.list'")
 	public List<UserInvitation> getUserInvitations() {
-		return userInvitationRepository.findAll(new Sort(Sort.Direction.DESC, "createdAt"));
+		return userInvitationRepository.findAll( Sort.by(Sort.Direction.DESC, "createdAt"));
 	}
 
 	public PasswordResetToken getPasswordResetToken(String token) {

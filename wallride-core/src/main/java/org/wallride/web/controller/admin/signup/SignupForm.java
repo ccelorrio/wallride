@@ -16,14 +16,16 @@
 
 package org.wallride.web.controller.admin.signup;
 
-import org.hibernate.validator.constraints.Email;
-import org.wallride.domain.PersonalName;
-import org.wallride.model.SignupRequest;
+
+import java.io.Serializable;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import java.io.Serializable;
+
+import org.wallride.domain.PersonalName;
+import org.wallride.model.SignupRequest;
 
 @SuppressWarnings("serial")
 public class SignupForm implements Serializable {

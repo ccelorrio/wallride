@@ -40,6 +40,7 @@ import java.util.Set;
 @Table(name = "blog")
 @DynamicInsert
 @DynamicUpdate
+@SuppressWarnings("serial")
 public class Blog extends DomainObject<Long> {
 
 	public static final long DEFAULT_ID = 1;

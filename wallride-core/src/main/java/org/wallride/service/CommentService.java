@@ -16,8 +16,12 @@
 
 package org.wallride.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,16 +32,17 @@ import org.wallride.domain.Comment;
 import org.wallride.domain.Post;
 import org.wallride.domain.User;
 import org.wallride.exception.ServiceException;
-import org.wallride.model.*;
+import org.wallride.model.CommentBulkApproveRequest;
+import org.wallride.model.CommentBulkDeleteRequest;
+import org.wallride.model.CommentBulkUnapproveRequest;
+import org.wallride.model.CommentCreateRequest;
+import org.wallride.model.CommentDeleteRequest;
+import org.wallride.model.CommentSearchRequest;
+import org.wallride.model.CommentUpdateRequest;
 import org.wallride.repository.CommentRepository;
 import org.wallride.repository.PostRepository;
 import org.wallride.repository.UserRepository;
 import org.wallride.support.AuthorizedUser;
-
-import javax.annotation.Resource;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -50,7 +55,7 @@ public class CommentService {
 	@Resource
 	private UserRepository userRepository;
 
-	private static Logger logger = LoggerFactory.getLogger(CommentService.class);
+	//private static Logger logger = LoggerFactory.getLogger(CommentService.class);
 
 	public Comment createComment(CommentCreateRequest request, AuthorizedUser createdBy) {
 		Post post = postRepository.findOneByIdAndLanguage(request.getPostId(), request.getBlogLanguage().getLanguage());
@@ -163,7 +168,7 @@ public class CommentService {
 	}
 
 	public Page<Comment> getComments(CommentSearchRequest request) {
-		Pageable pageable = new PageRequest(0, 10);
+		Pageable pageable = PageRequest.of(0, 10);
 		return getComments(request, pageable);
 	}
 

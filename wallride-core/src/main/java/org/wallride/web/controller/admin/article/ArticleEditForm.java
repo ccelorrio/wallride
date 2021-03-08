@@ -16,25 +16,31 @@
 
 package org.wallride.web.controller.admin.article;
 
-import org.apache.commons.lang.StringUtils;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.util.CollectionUtils;
-import org.wallride.domain.CustomField;
-import org.wallride.domain.CustomFieldValue;
 import org.wallride.domain.Article;
 import org.wallride.domain.Category;
+import org.wallride.domain.CustomField;
+import org.wallride.domain.CustomFieldValue;
 import org.wallride.domain.Post;
 import org.wallride.domain.Tag;
 import org.wallride.model.ArticleUpdateRequest;
 import org.wallride.support.CodeFormat;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("serial")
 public class ArticleEditForm implements Serializable {

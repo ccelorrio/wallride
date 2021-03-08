@@ -8,4 +8,5 @@ node_modules/
 .classpath
 .idea
 *.iml
+*/package-lock.json
 npm-debug.log

@@ -16,6 +16,7 @@
 
 package org.wallride.exception;
 
+@SuppressWarnings("serial")
 public class DuplicateNameException extends ServiceException {
 
 	private String name;

@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("serial")
 public class CategoryIndexModel extends ArrayList<Map<String, Object>> {
 
 	public CategoryIndexModel(List<TreeNode<Category>> nodes) {

@@ -16,6 +16,12 @@
 
 package org.wallride.autoconfigure;
 
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.thymeleaf.ThymeleafProperties;
@@ -39,11 +45,6 @@ import org.wallride.support.PageUtils;
 import org.wallride.support.PostUtils;
 import org.wallride.support.TagUtils;
 import org.wallride.web.support.ExtendedThymeleafViewResolver;
-
-import javax.inject.Inject;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Configuration
 public class WallRideThymeleafConfiguration {

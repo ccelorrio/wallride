@@ -21,6 +21,7 @@ import org.wallride.model.UserInvitationCreateRequest;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class UserInvitationCreateForm implements Serializable {
 
 	@NotNull

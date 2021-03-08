@@ -1,19 +1,21 @@
 package org.wallride.web.controller.admin.article;
 
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.NumberFormat;
-import org.springframework.util.StringUtils;
-import org.wallride.domain.CustomField;
-import org.wallride.domain.CustomFieldOption;
-import org.wallride.domain.CustomFieldValue;
-
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.NumberFormat;
+import org.springframework.util.ObjectUtils;
+import org.wallride.domain.CustomField;
+import org.wallride.domain.CustomFieldOption;
+import org.wallride.domain.CustomFieldValue;
+
+@SuppressWarnings("serial")
 public class CustomFieldValueEditForm implements Serializable {
 
 	private Long id;
@@ -157,7 +159,7 @@ public class CustomFieldValueEditForm implements Serializable {
 			case TEXT:
 			case SELECTBOX:
 			case RADIO:
-				if (StringUtils.isEmpty(getStringValue())) {
+				if (ObjectUtils.isEmpty(getStringValue())) {
 					return true;
 				}
 				return false;
@@ -168,7 +170,7 @@ public class CustomFieldValueEditForm implements Serializable {
 				return false;
 			case TEXTAREA:
 			case HTML:
-				if (StringUtils.isEmpty(getTextValue())) {
+				if (ObjectUtils.isEmpty(getTextValue())) {
 					return true;
 				}
 				return false;

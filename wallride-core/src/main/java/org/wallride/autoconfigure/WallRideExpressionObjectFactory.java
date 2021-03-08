@@ -16,7 +16,10 @@
 
 package org.wallride.autoconfigure;
 
-import org.springframework.mobile.device.LiteDeviceResolver;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.thymeleaf.context.IExpressionContext;
 import org.thymeleaf.expression.IExpressionObjectFactory;
 import org.wallride.support.ArticleUtils;
@@ -26,16 +29,11 @@ import org.wallride.support.PostUtils;
 import org.wallride.support.TagUtils;
 import org.wallride.web.support.Articles;
 import org.wallride.web.support.Categories;
-import org.wallride.web.support.Devices;
 import org.wallride.web.support.Medias;
 import org.wallride.web.support.Pages;
 import org.wallride.web.support.Posts;
 import org.wallride.web.support.Tags;
 import org.wallride.web.support.Users;
-
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 public class WallRideExpressionObjectFactory implements IExpressionObjectFactory {
 
@@ -46,7 +44,6 @@ public class WallRideExpressionObjectFactory implements IExpressionObjectFactory
 	public static final String TAGS_EXPRESSION_OBJECT_NAME = "tags";
 	public static final String MEDIAS_EXPRESSION_OBJECT_NAME = "medias";
 	public static final String USERS_EXPRESSION_OBJECT_NAME = "users";
-	public static final String DEVICES_EXPRESSION_OBJECT_NAME = "devices";
 
 	protected static final Set<String> ALL_EXPRESSION_OBJECT_NAMES =
 			Collections.unmodifiableSet(new LinkedHashSet<>(java.util.Arrays.asList(
@@ -57,8 +54,7 @@ public class WallRideExpressionObjectFactory implements IExpressionObjectFactory
 							CATEGORIES_EXPRESSION_OBJECT_NAME,
 							TAGS_EXPRESSION_OBJECT_NAME,
 							MEDIAS_EXPRESSION_OBJECT_NAME,
-							USERS_EXPRESSION_OBJECT_NAME,
-							DEVICES_EXPRESSION_OBJECT_NAME,
+							USERS_EXPRESSION_OBJECT_NAME
 					}
 			)));
 
@@ -149,8 +145,6 @@ public class WallRideExpressionObjectFactory implements IExpressionObjectFactory
 				return createMedias(context);
 			case USERS_EXPRESSION_OBJECT_NAME:
 				return createUsers(context);
-			case DEVICES_EXPRESSION_OBJECT_NAME:
-				return createDevices(context);
 			default:
 				return null;
 		}
@@ -182,9 +176,5 @@ public class WallRideExpressionObjectFactory implements IExpressionObjectFactory
 
 	protected Users createUsers(IExpressionContext context) {
 		return new Users(context, wallRideProperties);
-	}
-
-	protected Devices createDevices(IExpressionContext context) {
-		return new Devices(context, new LiteDeviceResolver());
 	}
 }

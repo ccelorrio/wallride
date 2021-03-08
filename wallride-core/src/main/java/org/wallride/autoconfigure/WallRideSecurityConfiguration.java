@@ -16,6 +16,11 @@
 
 package org.wallride.autoconfigure;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,10 +52,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.wallride.service.AuthorizedUserDetailsService;
 import org.wallride.web.support.BlogLanguageRedirectStrategy;
 
-import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.List;
-
+@SuppressWarnings("deprecation") //TODO Use BCryptPasswordEncoder instead of StandardPasswordEncoder
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -98,7 +100,7 @@ public class WallRideSecurityConfiguration {
 				.authorizeRequests()
 					.accessDecisionManager(accessDecisionManager)
 //		            .expressionHandler(securityExpressionHandler)
-					.antMatchers("/_admin/**").hasRole("ADMIN")
+					.antMatchers("/_admin/**").hasRole("BACKOFFICE")
 					.and()
 				.formLogin()
 					.loginPage("/_admin/login").permitAll()
@@ -153,7 +155,7 @@ public class WallRideSecurityConfiguration {
 
 			SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
 			successHandler.setRedirectStrategy(redirectStrategy);
-			successHandler.setDefaultTargetUrl("/");
+			successHandler.setDefaultTargetUrl("/settings/");
 
 			SimpleUrlAuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler("/login?failed");
 			failureHandler.setRedirectStrategy(redirectStrategy);
@@ -167,12 +169,12 @@ public class WallRideSecurityConfiguration {
 				.authorizeRequests()
 					.accessDecisionManager(accessDecisionManager)
 //		            .expressionHandler(securityExpressionHandler)
-					.antMatchers("/settings/**").hasRole("VIEWER")
-					.antMatchers("/comments/**").hasRole("VIEWER")
+					.antMatchers("/*/settings/**", "/settings/**").hasRole("VIEWER")
+					.antMatchers("/*/comments/**","/comments/**").hasRole("VIEWER")
 					.and()
 				.formLogin()
 					.loginPage("/login").permitAll()
-					.loginProcessingUrl("/login")
+					.loginProcessingUrl("/*/login")
 					.successHandler(successHandler)
 					.failureHandler(failureHandler)
 					.and()
@@ -228,7 +230,10 @@ public class WallRideSecurityConfiguration {
 	@Bean
 	public RoleHierarchy roleHierarchy() {
 		RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
-		hierarchy.setHierarchy("ROLE_ADMIN > ROLE_VIEWER");
+		hierarchy.setHierarchy("ROLE_ADMIN > ROLE_EDITOR\n"+
+				"ROLE_EDITOR > ROLE_AUTHOR\n"+
+				"ROLE_AUTHOR > ROLE_BACKOFFICE\n"+				
+				"ROLE_BACKOFFICE > ROLE_VIEWER\n");
 		return hierarchy;
 	}
 

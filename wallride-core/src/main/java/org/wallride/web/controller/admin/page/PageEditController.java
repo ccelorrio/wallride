@@ -16,6 +16,12 @@
 
 package org.wallride.web.controller.admin.page;
 
+import java.util.List;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.validation.groups.Default;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -26,27 +32,28 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.wallride.domain.Article;
-import org.wallride.domain.CustomField;
-import org.wallride.service.CustomFieldService;
 import org.wallride.domain.Category;
+import org.wallride.domain.CustomField;
 import org.wallride.domain.Page;
 import org.wallride.exception.DuplicateCodeException;
 import org.wallride.exception.EmptyCodeException;
 import org.wallride.model.TreeNode;
+import org.wallride.service.CustomFieldService;
 import org.wallride.service.PageService;
 import org.wallride.support.AuthorizedUser;
 import org.wallride.support.CategoryUtils;
 import org.wallride.web.support.DomainObjectSavedModel;
 import org.wallride.web.support.HttpNotFoundException;
 import org.wallride.web.support.RestValidationErrorModel;
-
-import javax.inject.Inject;
-import javax.validation.groups.Default;
-import java.util.List;
-import java.util.Set;
 
 @Controller
 @RequestMapping("/{language}/pages/edit")
@@ -152,7 +159,7 @@ public class PageEditController {
 	}
 
 	@RequestMapping(method=RequestMethod.POST, params="draft")
-	public @ResponseBody DomainObjectSavedModel saveAsDraft(
+	public @ResponseBody DomainObjectSavedModel<?> saveAsDraft(
 			@PathVariable String language,
 			@Validated @ModelAttribute("form") PageEditForm form,
 			BindingResult errors,

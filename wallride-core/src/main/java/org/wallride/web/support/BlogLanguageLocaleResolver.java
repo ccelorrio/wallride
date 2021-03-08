@@ -16,22 +16,19 @@
 
 package org.wallride.web.support;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Locale;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.web.servlet.LocaleResolver;
 import org.wallride.domain.Blog;
 import org.wallride.domain.BlogLanguage;
 import org.wallride.service.BlogService;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Locale;
-
 public class BlogLanguageLocaleResolver implements LocaleResolver {
 
 	private BlogService blogService;
-
-	private static Logger logger = LoggerFactory.getLogger(BlogLanguageLocaleResolver.class);
 
 	public void setBlogService(BlogService blogService) {
 		this.blogService = blogService;

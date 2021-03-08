@@ -20,6 +20,7 @@ import org.wallride.model.UserInvitationResendRequest;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class UserInvitationResendForm implements Serializable {
 
 	private String token;

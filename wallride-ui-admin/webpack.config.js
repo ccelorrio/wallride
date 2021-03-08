@@ -1,6 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
@@ -13,10 +13,7 @@ module.exports = {
 		rules: [
 			{
 				test: /\.css$/,
-				use: ExtractTextPlugin.extract({
-					fallback: "style-loader",
-					use: "css-loader"
-				})
+				use: [MiniCssExtractPlugin.loader, 'css-loader'],
 			},
 			{
 				test: /\.(jpg|png|gif)$/,
@@ -50,14 +47,15 @@ module.exports = {
 			"window.jQuery": "jquery",
 			"global.jQuery": "jquery"
 		}),
-		new ExtractTextPlugin("resources/admin/bundle.css"),
-		new CopyWebpackPlugin([
+		new MiniCssExtractPlugin({ filename: 'resources/admin/bundle.css'}),
+		new CopyWebpackPlugin({
+			patterns : [
 			{ from: 'node_modules/bootstrap/dist/fonts/*', to: 'resources/admin' },
 			{ context: 'src/resources', from: 'css/wallride.custom.css', to: 'resources/admin/css' },
 			{ context: 'src/resources', from: 'font/**/*', to: 'resources/admin' },
 			{ context: 'src/resources', from: 'img/**/*', to: 'resources/admin' },
 			{ context: 'src/templates', from: '**/*', to: 'templates/admin' }
-		])
+		]})
 	],
 	devServer: {
 		contentBase: [

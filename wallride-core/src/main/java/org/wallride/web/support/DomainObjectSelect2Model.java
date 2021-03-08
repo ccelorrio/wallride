@@ -26,7 +26,7 @@ public class DomainObjectSelect2Model<ID extends Serializable> implements Serial
 	private ID id;
 	private String text;
 	
-	public DomainObjectSelect2Model(DomainObject object) {
+	public DomainObjectSelect2Model(DomainObject<ID> object) {
 		setId((ID) object.getId());
 		setText(object.print());
 	}
@@ -55,9 +55,13 @@ public class DomainObjectSelect2Model<ID extends Serializable> implements Serial
 	@Override
 	public boolean equals(Object other) {
 		if (this == other) return true;
-		if (other == null || !(other instanceof DomainObjectSelect2Model)) return false;
-		if (getId() == null) return false;
-		DomainObjectSelect2Model that = (DomainObjectSelect2Model) other;
-		return getId().equals(that.getId());
+		if (other != null && (other instanceof DomainObjectSelect2Model<?>)) {
+			if (getId() == null) return false;
+			DomainObjectSelect2Model<?> that = (DomainObjectSelect2Model<?>) other;
+			return getId().equals(that.getId());
+		}
+		else {
+			return false;
+		}
 	}
 }

@@ -16,42 +16,42 @@
 
 package org.wallride.autoconfigure;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import org.springframework.boot.context.config.ConfigFileApplicationListener;
-import org.springframework.boot.context.event.ApplicationStartingEvent;
-import org.springframework.cloud.aws.core.io.s3.PathMatchingSimpleStorageResourcePatternResolver;
-import org.springframework.cloud.aws.core.io.s3.SimpleStorageProtocolResolver;
-import org.springframework.context.ApplicationListener;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.StandardEnvironment;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.util.StringUtils;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.event.ApplicationStartingEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.StandardEnvironment;
+import org.springframework.util.StringUtils;
+
 public class WallRideInitializer implements ApplicationListener<ApplicationStartingEvent> {
+	
+	Logger logger = LoggerFactory.getLogger(WallRideInitializer.class);
 
 	/**
 	 * @see ConfigFileApplicationListener#DEFAULT_SEARCH_LOCATIONS
 	 */
-	private static final String DEFAULT_CONFIG_SEARCH_LOCATIONS = "classpath:/,classpath:/config/,file:./,file:./config/";
+	private static final String DEFAULT_CONFIG_SEARCH_LOCATIONS = "classpath:/,classpath:/config/,file:./,optional:file:./config/";
 
 	@Override
 	public void onApplicationEvent(ApplicationStartingEvent event) {
 		event.getSpringApplication().setEnvironment(createEnvironment(event));
-		event.getSpringApplication().setResourceLoader(createResourceLoader());
+//		event.getSpringApplication().setResourceLoader(createResourceLoader());
 	}
 
 	public static ConfigurableEnvironment createEnvironment(ApplicationStartingEvent event) {
 		StandardEnvironment environment = new StandardEnvironment();
 
-		String home = environment.getProperty(WallRideProperties.HOME_PROPERTY);
+		String home = environment.getProperty(WallRideProperties.HOME_PROPERTY, WallRideProperties.DEFAULT_HOME_PROPERTY);
+		System.out.println("WallRideProperties.HOME_PROPERTY " + home);
 		if (!StringUtils.hasText(home)) {
 			//try to get config-File with wallride.home parameter under webroot
 			String configFileHome = getConfigFileHome(event);
@@ -71,26 +71,24 @@ public class WallRideInitializer implements ApplicationListener<ApplicationStart
 		System.setProperty(WallRideProperties.CONFIG_LOCATION_PROPERTY, config);
 		System.setProperty(WallRideProperties.MEDIA_LOCATION_PROPERTY, media);
 
-		event.getSpringApplication().getListeners().stream()
-				.filter(listener -> listener.getClass().isAssignableFrom(ConfigFileApplicationListener.class))
-				.map(listener -> (ConfigFileApplicationListener) listener)
-				.forEach(listener -> listener.setSearchLocations(DEFAULT_CONFIG_SEARCH_LOCATIONS + "," + config));
-
+		System.out.println(DEFAULT_CONFIG_SEARCH_LOCATIONS + ",optional:" + config);
+		System.setProperty("spring.config.additional-location", "optional:" + config);
+		
 		return environment;
 	}
 
-	public static ResourceLoader createResourceLoader() {
-		ClientConfiguration configuration = new ClientConfiguration();
-		configuration.setMaxConnections(1000);
-		AmazonS3 amazonS3 = new AmazonS3Client(configuration);
-
-		SimpleStorageProtocolResolver protocolResolver = new SimpleStorageProtocolResolver(amazonS3);
-		protocolResolver.afterPropertiesSet();
-		DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
-		resourceLoader.addProtocolResolver(protocolResolver);
-		ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver(resourceLoader);
-		return new PathMatchingSimpleStorageResourcePatternResolver(amazonS3, resourceResolver);
-	}
+//	public static ResourceLoader createResourceLoader() {
+//		ClientConfiguration configuration = new ClientConfiguration();
+//		configuration.setMaxConnections(1000);
+//		// AmazonS3 amazonS3 = new AmazonS3Client(configuration);
+//
+//		//SimpleStorageProtocolResolver protocolResolver = new SimpleStorageProtocolResolver(amazonS3);
+//		//protocolResolver.afterPropertiesSet();
+//		//DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
+//		//resourceLoader.addProtocolResolver(protocolResolver);
+//		//ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver(resourceLoader);
+//		return new PathMatchingSimpleStorageResourcePatternResolver(amazonS3, resourceResolver);
+//	}
 
 	private static String getConfigFileHome(ApplicationStartingEvent event) {
 

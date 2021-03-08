@@ -16,12 +16,8 @@
 
 package org.wallride.autoconfigure;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -51,13 +47,13 @@ import org.wallride.service.BlogService;
 @ComponentScan(basePackageClasses = BlogService.class)
 public class WallRideAutoConfiguration {
 
-	@Bean
-	public AmazonS3 amazonS3() {
-//		final String accessKey = environment.getRequiredProperty("aws.accessKey");
-//		final String secretKey = environment.getRequiredProperty("aws.secretKey");
-		ClientConfiguration configuration = new ClientConfiguration();
-		configuration.setMaxConnections(1000);
-//		return new AmazonS3Client(new BasicAWSCredentials(accessKey, secretKey), configuration);
-		return new AmazonS3Client(configuration);
-	}
+//	@Bean
+//	public AmazonS3 amazonS3() {
+////		final String accessKey = environment.getRequiredProperty("aws.accessKey");
+////		final String secretKey = environment.getRequiredProperty("aws.secretKey");
+//		ClientConfiguration configuration = new ClientConfiguration();
+//		configuration.setMaxConnections(1000);
+////		return new AmazonS3Client(new BasicAWSCredentials(accessKey, secretKey), configuration);
+//		return new AmazonS3Client(configuration);
+//	}
 }

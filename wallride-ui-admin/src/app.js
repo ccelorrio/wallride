@@ -11,6 +11,8 @@ import 'jsrender';
 
 import 'blueimp-file-upload';
 import 'blueimp-file-upload/css/jquery.fileupload.css';
+import 'blueimp-file-upload/js/jquery.fileupload-process.js';
+import 'blueimp-file-upload/js/jquery.fileupload-validate.js';
 
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';

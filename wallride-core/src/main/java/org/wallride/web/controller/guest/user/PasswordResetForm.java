@@ -16,15 +16,18 @@
 
 package org.wallride.web.controller.guest.user;
 
-import org.hibernate.validator.constraints.Email;
+
+import java.io.Serializable;
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
 import org.hibernate.validator.constraints.Length;
 import org.wallride.domain.BlogLanguage;
 import org.wallride.model.PasswordResetTokenCreateRequest;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import java.io.Serializable;
-
+@SuppressWarnings("serial")
 public class PasswordResetForm implements Serializable {
 
 	@NotNull

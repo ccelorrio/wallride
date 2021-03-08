@@ -16,6 +16,8 @@
 
 package org.wallride.web.controller.guest.user;
 
+import javax.inject.Inject;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -32,10 +34,9 @@ import org.wallride.model.PasswordUpdateRequest;
 import org.wallride.service.UserService;
 import org.wallride.support.AuthorizedUser;
 
-import javax.inject.Inject;
-
 @Controller
 @RequestMapping("/settings/password")
+@SuppressWarnings("deprecation") // TODO Use BCryptPasswordEncoder instead of StandardPasswordEncoder
 public class PasswordUpdateController {
 
 	public static final String FORM_MODEL_KEY = "form";
@@ -85,7 +86,7 @@ public class PasswordUpdateController {
 		}
 
 		if (errors.hasErrors()) {
-			return "redirect:/settings/password?step.edit";
+			return "redirect:/account/password?step.edit";
 		}
 
 		PasswordUpdateRequest request = new PasswordUpdateRequest()
@@ -95,6 +96,6 @@ public class PasswordUpdateController {
 
 		redirectAttributes.getFlashAttributes().clear();
 		redirectAttributes.addFlashAttribute("updatedPassword", true);
-		return "redirect:/settings/password";
+		return "redirect:/account/password";
 	}
 }

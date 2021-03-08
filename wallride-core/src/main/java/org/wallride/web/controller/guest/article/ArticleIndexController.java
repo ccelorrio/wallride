@@ -16,28 +16,25 @@
 
 package org.wallride.web.controller.guest.article;
 
+import java.time.LocalDateTime;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.HandlerMapping;
 import org.wallride.domain.Article;
 import org.wallride.domain.BlogLanguage;
-import org.wallride.domain.Category;
 import org.wallride.domain.User;
 import org.wallride.service.ArticleService;
-import org.wallride.service.CategoryService;
 import org.wallride.service.UserService;
 import org.wallride.web.support.HttpNotFoundException;
 import org.wallride.web.support.Pagination;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
 
 @Controller
 public class ArticleIndexController {
@@ -48,8 +45,7 @@ public class ArticleIndexController {
 
 	@Inject
 	private ArticleService articleService;
-	@Inject
-	private CategoryService categoryService;
+
 	@Inject
 	private UserService userService;
 
@@ -60,7 +56,7 @@ public class ArticleIndexController {
 			BlogLanguage blogLanguage,
 			HttpServletRequest servletRequest,
 			Model model) {
-		ArticleSearchForm form = new ArticleSearchForm() {};
+		ArticleSearchForm form = new ArticleSearchForm();
 		form.setLanguage(blogLanguage.getLanguage());
 		form.setDateFrom(LocalDateTime.of(year, 1, 1, 0, 0, 0));
 		form.setDateTo(LocalDateTime.of(year, 12, 31, 0, 0, 0));
@@ -80,7 +76,7 @@ public class ArticleIndexController {
 			BlogLanguage blogLanguage,
 			HttpServletRequest servletRequest,
 			Model model) {
-		ArticleSearchForm form = new ArticleSearchForm() {};
+		ArticleSearchForm form = new ArticleSearchForm();
 		form.setLanguage(blogLanguage.getLanguage());
 		LocalDateTime date = LocalDateTime.of(year, month, 1, 0, 0, 0);
 		form.setDateFrom(LocalDateTime.of(year, month, 1, 0, 0, 0));
@@ -102,7 +98,7 @@ public class ArticleIndexController {
 			BlogLanguage blogLanguage,
 			HttpServletRequest servletRequest,
 			Model model) {
-		ArticleSearchForm form = new ArticleSearchForm() {};
+		ArticleSearchForm form = new ArticleSearchForm();
 		form.setLanguage(blogLanguage.getLanguage());
 		form.setDateFrom(LocalDateTime.of(year, month, day, 0, 0, 0));
 		form.setDateTo(LocalDateTime.of(year, month, day, 23, 59, 59));
@@ -126,7 +122,7 @@ public class ArticleIndexController {
 			throw new HttpNotFoundException();
 		}
 
-		ArticleSearchForm form = new ArticleSearchForm() {};
+		ArticleSearchForm form = new ArticleSearchForm();
 		form.setLanguage(blogLanguage.getLanguage());
 		form.setAuthorId(author.getId());
 

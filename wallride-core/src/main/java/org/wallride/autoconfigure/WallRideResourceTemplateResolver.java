@@ -16,14 +16,14 @@
 
 package org.wallride.autoconfigure;
 
+import java.util.Map;
+
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.thymeleaf.IEngineConfiguration;
 import org.thymeleaf.templateresolver.AbstractConfigurableTemplateResolver;
 import org.thymeleaf.templateresource.ITemplateResource;
-
-import java.util.Map;
 
 /**
  * @author OGAWA, Takeshi

@@ -16,18 +16,18 @@
 
 package org.wallride.model;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.wallride.domain.BlogLanguage;
 import org.wallride.domain.Post;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 
 @SuppressWarnings("serial")
 public class PageSearchRequest implements Serializable {

@@ -24,12 +24,15 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Session;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.BooleanJunction;
 import org.hibernate.search.query.dsl.QueryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -45,6 +48,8 @@ import java.util.stream.Collectors;
 
 public class UserRepositoryImpl implements UserRepositoryCustom {
 	
+	Logger logger = LoggerFactory.getLogger(UserRepositoryImpl.class);
+	
 	@PersistenceContext
 	private EntityManager entityManager;
 
@@ -56,7 +61,8 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 	@Override
 	public Page<User> search(UserSearchRequest request, Pageable pageable) {
 		Session session = (Session) entityManager.getDelegate();
-		Criteria criteria = session.createCriteria(User.class);
+		Criteria criteria = session.createCriteria(User.class)
+				.setFetchMode("roles", FetchMode.JOIN);
 
 		FullTextQuery persistenceQuery = buildFullTextQuery(request, pageable, criteria);
 		int resultSize = persistenceQuery.getResultSize();
@@ -85,7 +91,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 		junction.must(qb.all().createQuery());
 
 		if (StringUtils.hasText(request.getKeyword())) {
-			Analyzer analyzer = fullTextEntityManager.getSearchFactory().getAnalyzer("synonyms");
+			Analyzer analyzer = fullTextEntityManager.getSearchFactory().getAnalyzer("customanalyzer");
 			String[] fields = new String[] {
 					"loginId",
 					"name.firstName", "name.lastName",
@@ -104,6 +110,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 					throw new RuntimeException(e2);
 				}
 			}
+
 			junction.must(query);
 		}
 
@@ -114,6 +121,8 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 		}
 
 		Query searchQuery = junction.createQuery();
+		
+		logger.debug("User Search: " + searchQuery);
 
 		Sort sort = new Sort(new SortField("sortId", SortField.Type.LONG, false));
 

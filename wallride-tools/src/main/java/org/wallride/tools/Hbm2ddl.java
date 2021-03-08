@@ -16,12 +16,15 @@
 
 package org.wallride.tools;
 
+import java.util.EnumSet;
+
+import javax.persistence.Entity;
+
 import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.BootstrapServiceRegistry;
 import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.boot.registry.internal.StandardServiceRegistryImpl;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.schema.TargetType;
@@ -32,9 +35,6 @@ import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.SimpleMetadataReaderFactory;
 import org.wallride.autoconfigure.ExtendedMySQL5InnoDBDialect;
 import org.wallride.autoconfigure.PhysicalNamingStrategySnakeCaseImpl;
-
-import javax.persistence.Entity;
-import java.util.EnumSet;
 
 public class Hbm2ddl {
 
@@ -59,9 +59,8 @@ public class Hbm2ddl {
 				metadataSources.addAnnotatedClass(Class.forName(metadata.getClassName()));
 			}
 		}
-
-		final StandardServiceRegistryImpl registryImpl = (StandardServiceRegistryImpl) registryBuilder.build();
-		final MetadataBuilder metadataBuilder = metadataSources.getMetadataBuilder(registryImpl);
+		
+		final MetadataBuilder metadataBuilder = metadataSources.getMetadataBuilder();
 
 		new SchemaExport()
 				.setHaltOnError(true)

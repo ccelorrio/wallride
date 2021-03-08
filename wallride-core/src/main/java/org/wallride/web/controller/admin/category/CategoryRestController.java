@@ -70,7 +70,7 @@ public class CategoryRestController {
 	}
 
 	@RequestMapping(value="/{language}/categories", method=RequestMethod.POST)
-	public @ResponseBody DomainObjectSavedModel save(
+	public @ResponseBody DomainObjectSavedModel<?> save(
 			@Valid CategoryCreateForm form,
 			BindingResult result,
 			AuthorizedUser authorizedUser,
@@ -87,7 +87,7 @@ public class CategoryRestController {
 	}
 
 	@RequestMapping(value="/{language}/categories/{id}", method=RequestMethod.POST)
-	public @ResponseBody DomainObjectUpdatedModel update(
+	public @ResponseBody DomainObjectUpdatedModel<?> update(
 			@Valid CategoryEditForm form,
 			BindingResult result,
 			@PathVariable long id,

@@ -16,10 +16,13 @@
 
 package org.wallride.autoconfigure;
 
-import com.amazonaws.util.EC2MetadataUtils;
-import jp.co.tagbangers.jgroups.S3_CLIENT_PING;
+import java.io.IOException;
+
+import javax.sql.DataSource;
+
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.configuration.cache.Index;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.configuration.parsing.ConfigurationBuilderHolder;
 import org.infinispan.configuration.parsing.ParserRegistry;
@@ -30,8 +33,7 @@ import org.infinispan.lucene.LuceneKey2StringMapper;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.persistence.jdbc.configuration.JdbcStringBasedStoreConfigurationBuilder;
-import org.infinispan.spring.provider.SpringEmbeddedCacheManager;
-import org.jgroups.conf.ClassConfigurator;
+import org.infinispan.spring.embedded.provider.SpringEmbeddedCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +47,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-
-import javax.sql.DataSource;
-import java.io.IOException;
 
 @Configuration
 @EnableCaching
@@ -78,68 +77,66 @@ public class WallRideCacheConfiguration extends CachingConfigurerSupport {
 	@Override
 	public CacheManager cacheManager() {
 		// JGroups settings
-		String jgroupsConfigurationFile = environment.getRequiredProperty("jgroups.configurationFile");
-		if ("jgroups-ec2.xml".equals(jgroupsConfigurationFile)) {
-			ClassConfigurator.addProtocol((short) 1000, S3_CLIENT_PING.class);
-			String ipAddress = EC2MetadataUtils.getPrivateIpAddress();
-			logger.info("jgroups.tcp.address -> {}", ipAddress);
-			System.setProperty("jgroups.tcp.address", ipAddress);
-			System.setProperty("jgroups.s3.bucket", environment.getRequiredProperty("jgroups.s3.bucket"));
-		}
+		String jgroupsConfigurationFile = environment.getProperty("jgroups.configurationFile");
+//		if ("jgroups-ec2.xml".equals(jgroupsConfigurationFile)) {
+//			ClassConfigurator.addProtocol((short) 1000, S3_CLIENT_PING.class);
+//			String ipAddress = EC2MetadataUtils.getPrivateIpAddress();
+//			logger.info("jgroups.tcp.address -> {}", ipAddress);
+//			System.setProperty("jgroups.tcp.address", ipAddress);
+//			System.setProperty("jgroups.s3.bucket", environment.getRequiredProperty("jgroups.s3.bucket"));
+//		}
 
 		Resource hibernateSearchConfig = new ClassPathResource(DefaultCacheManagerService.DEFAULT_INFINISPAN_CONFIGURATION_RESOURCENAME);
 		ParserRegistry parserRegistry = new ParserRegistry();
 		ConfigurationBuilderHolder holder;
 		try {
-			holder = parserRegistry.parse(hibernateSearchConfig.getInputStream());
+			holder = parserRegistry.parse(hibernateSearchConfig.getURL());
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 
+		logger.debug("Enabling CACHE...");
+		
 		// GlobalConfiguration
 		// @formatter:off
 		GlobalConfigurationBuilder globalBuilder = holder.getGlobalConfigurationBuilder();
 		globalBuilder
-			.globalJmxStatistics()
-				.allowDuplicateDomains(true)
+			.jmx()        // Enable JMX stats
 			.transport()
-				.defaultTransport()
-					.addProperty("configurationFile", jgroupsConfigurationFile);
-		// @formatter:on
+				.defaultTransport();
+		if(jgroupsConfigurationFile != null) {
+			globalBuilder.transport().addProperty("configurationFile", jgroupsConfigurationFile);
+		}
 
 		// DefaultConfiguration
-		// @formatter:off
 		for (ConfigurationBuilder luceneIndexesBuilder : holder.getNamedConfigurationBuilders().values()) {
 			if ("mysql".equals(dataSourceProperties.getPlatform())) {
 				luceneIndexesBuilder
 					.persistence()
 						.addStore(JdbcStringBasedStoreConfigurationBuilder.class)
-							.preload(true)
 							.shared(true)
-							.key2StringMapper(LuceneKey2StringMapper.class)
+							.key2StringMapper(LuceneKey2StringMapper.class)								
 								.table()
-								.tableNamePrefix("ispn_string_table")
-								.idColumnName("id_column")
-								.idColumnType("varchar(255)")
-								.dataColumnName("data_column")
-								.dataColumnType("longblob")
-								.timestampColumnName("timestamp_column")
-								.timestampColumnType("bigint")
-								.dropOnExit(false)
-								.createOnStart(true)
+									.dropOnExit(false)
+									.createOnStart(true)
+									.tableNamePrefix("ispn_string_table")
+									.idColumnName("id_column").idColumnType("varchar(255)")
+									.dataColumnName("data_column").dataColumnType("longblob")
+									.timestampColumnName("timestamp_column").timestampColumnType("bigint")
+									.segmentColumnName("segment_column").segmentColumnType("integer")									
 							.async()
-								.enable()
-								.threadPoolSize(10)
+								.enable()								
 							.fetchPersistentState(true)
 							.ignoreModifications(false)
 							.purgeOnStartup(false)
+							.preload(true)
 							.connectionFactory(InfinispanDataSourceConnectionFactoryConfigurationBuilder.class).dataSource(dataSource);
 			} else if ("postgresql".equals(dataSourceProperties.getPlatform())) {
 				luceneIndexesBuilder
 					.persistence()
 						.addStore(JdbcStringBasedStoreConfigurationBuilder.class)
 							.preload(true)
-							.shared(true)
+							.shared(true)							
 							.key2StringMapper(LuceneKey2StringMapper.class)
 								.table()
 								.tableNamePrefix("ispn_string_table")
@@ -149,11 +146,12 @@ public class WallRideCacheConfiguration extends CachingConfigurerSupport {
 								.dataColumnType("bytea")
 								.timestampColumnName("timestamp_column")
 								.timestampColumnType("bigint")
+								.segmentColumnName("segment_column")
+								.segmentColumnType("integer")								
 								.dropOnExit(false)
 								.createOnStart(true)
 							.async()
 								.enable()
-								.threadPoolSize(10)
 							.fetchPersistentState(true)
 							.ignoreModifications(false)
 							.purgeOnStartup(false)
@@ -166,15 +164,23 @@ public class WallRideCacheConfiguration extends CachingConfigurerSupport {
 
 		// @formatter:off
 		ConfigurationBuilder cacheBuilder = new ConfigurationBuilder();
+		if(jgroupsConfigurationFile == null) {
 		cacheBuilder
-			.clustering()
-				.cacheMode(CacheMode.REPL_SYNC)
-				.eviction()
-					.type(EvictionType.COUNT)
-					.strategy(EvictionStrategy.LIRS)
-					.size(1000);
-//				.indexing()
-//					.index(Index.NONE);
+			.simpleCache(true);   // ENABLES LOCAL CACHE
+		}
+		else {
+			cacheBuilder
+				.clustering()
+					.cacheMode(CacheMode.REPL_SYNC)
+					.memory()
+						.evictionStrategy(EvictionStrategy.REMOVE)
+						.evictionType(EvictionType.COUNT)
+						.size(1000)					
+						//.maxCount(1000)
+						//.whenFull(EvictionStrategy.REMOVE);
+					.indexing()
+						.index(Index.NONE);
+		}
 		// @formatter:on
 
 		holder.getNamedConfigurationBuilders().put(BLOG_CACHE, cacheBuilder);
@@ -189,7 +195,7 @@ public class WallRideCacheConfiguration extends CachingConfigurerSupport {
 		holder.getNamedConfigurationBuilders().put(USER_CACHE, cacheBuilder);
 
 		EmbeddedCacheManager embeddedCacheManager = new DefaultCacheManager(holder, true);
-		InfinispanSingletonCacheManagerDirectoryProvider.cacheManager = embeddedCacheManager;
+		InfinispanSingletonCacheManagerDirectoryProvider.setCacheManager( embeddedCacheManager );
 		return new SpringEmbeddedCacheManager(embeddedCacheManager);
 	}
 

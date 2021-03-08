@@ -20,6 +20,7 @@ import org.wallride.model.CategorySearchRequest;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class CategorySearchForm implements Serializable {
 
 	private String keyword;

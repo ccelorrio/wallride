@@ -40,7 +40,7 @@ import java.util.TreeSet;
 @RequestMapping("/feed")
 public class FeedController {
 
-	private static final PageRequest DEFAULT_PAGE_REQUEST = new PageRequest(0, 50);
+	private static final PageRequest DEFAULT_PAGE_REQUEST = PageRequest.of(0, 50);
 
 	@Inject
 	private ArticleService articleService;

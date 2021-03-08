@@ -73,6 +73,7 @@ public class MediaHttpRequestHandler extends ResourceHttpRequestHandler implemen
 
 	@Override
 	protected Resource getResource(HttpServletRequest request) throws IOException {
+		@SuppressWarnings("unchecked")
 		Map<String, Object> pathVariables = (Map<String, Object>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 		String key = (String) pathVariables.get("key");
 

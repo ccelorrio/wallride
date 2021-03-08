@@ -16,6 +16,13 @@
 
 package org.wallride.web.controller.admin.user;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +32,11 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -37,12 +48,6 @@ import org.wallride.service.ArticleService;
 import org.wallride.service.UserService;
 import org.wallride.web.support.ControllerUtils;
 import org.wallride.web.support.Pagination;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/{language}/users/index")
@@ -90,7 +95,7 @@ public class UserSearchController {
 				.fromRequest(servletRequest)
 				.queryParams(ControllerUtils.convertBeanForQueryParams(form, conversionService))
 				.build();
-		if (!StringUtils.isEmpty(uriComponents.getQuery())) {
+		if (StringUtils.hasText(uriComponents.getQuery())) {
 			model.addAttribute("query", URLDecoder.decode(uriComponents.getQuery(), "UTF-8"));
 		}
 

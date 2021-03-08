@@ -16,6 +16,13 @@
 
 package org.wallride.job;
 
+import java.io.IOException;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -40,15 +47,11 @@ import org.wallride.web.controller.guest.page.PageDescribeController;
 import org.wallride.web.support.BlogLanguageRewriteMatch;
 import org.wallride.web.support.BlogLanguageRewriteRule;
 
-import javax.inject.Inject;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import java.io.IOException;
-import java.util.List;
+import com.google.api.services.analyticsreporting.v4.model.ReportRow;
 
 @Component
 @StepScope
-public class UpdatePostViewsItemWriter implements ItemWriter<List> {
+public class UpdatePostViewsItemWriter implements ItemWriter<ReportRow> {
 
 	@Inject
 	private ServletContext servletContext;
@@ -62,7 +65,7 @@ public class UpdatePostViewsItemWriter implements ItemWriter<List> {
 	private static Logger logger = LoggerFactory.getLogger(UpdatePostViewsItemWriter.class);
 
 	@Override
-	public void write(List<? extends List> items) throws Exception {
+	public void write(List<? extends ReportRow> items) throws Exception {
 		WebApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(servletContext, "org.springframework.web.servlet.FrameworkServlet.CONTEXT.guestServlet");
 		if (context == null) {
 			throw new ServiceException("GuestServlet is not ready yet");
@@ -70,8 +73,8 @@ public class UpdatePostViewsItemWriter implements ItemWriter<List> {
 
 		final RequestMappingHandlerMapping mapping = context.getBean(RequestMappingHandlerMapping.class);
 
-		for (List item : items) {
-			UriComponents uriComponents = UriComponentsBuilder.fromUriString((String) item.get(0)).build();
+		for (ReportRow item : items) {
+			UriComponents uriComponents = UriComponentsBuilder.fromUriString((String) item.getDimensions().get(0)).build();
 			logger.info("Processing [{}]", uriComponents.toString());
 
 			MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
@@ -104,6 +107,7 @@ public class UpdatePostViewsItemWriter implements ItemWriter<List> {
 			}
 
 			HandlerMethod method = (HandlerMethod) handler.getHandler();
+			logger.debug("Controller used [{}]", method.getBeanType());
 			if (!method.getBeanType().equals(ArticleDescribeController.class) && !method.getBeanType().equals(PageDescribeController.class)) {
 				continue;
 			}
@@ -116,8 +120,9 @@ public class UpdatePostViewsItemWriter implements ItemWriter<List> {
 				continue;
 			}
 
-			logger.info("Update the PageView. Post ID [{}]: {} -> {}", post.getId(), post.getViews(), item.get(1));
-			post.setViews(Long.parseLong((String) item.get(1)));
+			Long itemViews = Long.parseLong((String) item.getMetrics().get(0).getValues().get(0));
+			logger.info("Update the PageView. Post ID [{}]: {} -> {}", post.getId(), post.getViews(), itemViews);
+			post.setViews(itemViews);
 			postRepository.saveAndFlush(post);
 		}
 	}

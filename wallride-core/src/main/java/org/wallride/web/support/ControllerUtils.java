@@ -16,12 +16,19 @@
 
 package org.wallride.web.support;
 
+import java.beans.PropertyDescriptor;
+import java.net.URI;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.format.Printer;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.datetime.joda.JodaDateTimeFormatAnnotationFormatterFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,25 +37,19 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UrlPathHelper;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.beans.PropertyDescriptor;
-import java.net.URI;
-import java.util.Collection;
-
 public abstract class ControllerUtils {
 
 	public static MultiValueMap<String, String> convertBeanForQueryParams(Object target, ConversionService conversionService) {
 		BeanWrapperImpl beanWrapper = new BeanWrapperImpl(target);
 		beanWrapper.setConversionService(conversionService);
-		MultiValueMap<String, String> queryParams = new LinkedMultiValueMap();
+		MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
 		for (PropertyDescriptor pd : beanWrapper.getPropertyDescriptors()) {
 			if (beanWrapper.isWritableProperty(pd.getName())) {
 				Object pv = beanWrapper.getPropertyValue(pd.getName());
 				if (pv != null) {
 					if (pv instanceof Collection) {
-						if (!CollectionUtils.isEmpty((Collection) pv)) {
-							for (Object element : (Collection) pv) {
+						if (!CollectionUtils.isEmpty((Collection<?>) pv)) {
+							for (Object element : (Collection<?>) pv) {
 								queryParams.set(pd.getName(), convertPropertyValueForString(target, pd, element));
 							}
 						}
@@ -69,9 +70,8 @@ public abstract class ControllerUtils {
 			throw new RuntimeException(e);
 		}
 		if (dateTimeFormat != null) {
-			JodaDateTimeFormatAnnotationFormatterFactory factory = new JodaDateTimeFormatAnnotationFormatterFactory();
-			Printer printer = factory.getPrinter(dateTimeFormat, descriptor.getPropertyType());
-			return printer.print(propertyValue, LocaleContextHolder.getLocale());
+			LocalDateTime localDateTime = LocalDateTime.parse(propertyValue.toString());			
+			return localDateTime.format(DateTimeFormatter.ofPattern(dateTimeFormat.pattern(), LocaleContextHolder.getLocale()));
 		}
 		return propertyValue.toString();
 	}

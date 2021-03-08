@@ -16,7 +16,11 @@
 
 package org.wallride.web.controller.admin.analytics;
 
-import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -33,11 +37,11 @@ import org.wallride.model.GoogleAnalyticsUpdateRequest;
 import org.wallride.service.BlogService;
 import org.wallride.support.AuthorizedUser;
 
-import javax.inject.Inject;
-
 @Controller
 @RequestMapping("/{language}/analytics/edit")
 public class GoogleAnalyticsUpdateController {
+	
+	Logger logger = LoggerFactory.getLogger( GoogleAnalyticsUpdateController.class);
 
 	@Inject
 	private BlogService blogService;
@@ -88,6 +92,7 @@ public class GoogleAnalyticsUpdateController {
 		try {
 			updatedGoogleAnalytics = blogService.updateGoogleAnalytics(request);
 		} catch (GoogleAnalyticsException e) {
+			logger.error("ERROR Updating Google Analytics", e);
 			errors.reject("GoogleAnalytics");
 			return "redirect:/_admin/{language}/analytics/edit?step.edit";
 		}

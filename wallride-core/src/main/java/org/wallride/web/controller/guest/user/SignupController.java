@@ -16,20 +16,24 @@
 
 package org.wallride.web.controller.guest.user;
 
+import javax.inject.Inject;
+import javax.mail.MessagingException;
+import javax.validation.Valid;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.wallride.domain.User;
+import org.wallride.domain.UserInvitation;
 import org.wallride.exception.DuplicateEmailException;
 import org.wallride.exception.DuplicateLoginIdException;
 import org.wallride.service.SignupService;
-
-import javax.inject.Inject;
-import javax.validation.Valid;
+import org.wallride.web.controller.admin.signup.SignupForm;
 
 @Controller
 @RequestMapping("/signup")
@@ -57,12 +61,14 @@ public class SignupController {
 	public String edit(Model model) {
 		return "user/signup";
 	}
+	
+
 
 	@RequestMapping(method=RequestMethod.POST)
 	public String signup(
 			@Valid @ModelAttribute("form") SignupForm form,
 			BindingResult errors,
-			RedirectAttributes redirectAttributes) {
+			RedirectAttributes redirectAttributes) throws MessagingException {
 		redirectAttributes.addFlashAttribute(FORM_MODEL_KEY, form);
 		redirectAttributes.addFlashAttribute(ERRORS_MODEL_KEY, errors);
 
@@ -81,6 +87,24 @@ public class SignupController {
 		}
 
 		redirectAttributes.getFlashAttributes().clear();
+		redirectAttributes.addFlashAttribute("toast", "signupConfirmation");
 		return "redirect:/";
 	}
+	
+	
+	@RequestMapping(method = RequestMethod.GET, params = "token")
+	public String signupConfirmation(@RequestParam String token, RedirectAttributes redirectAttributes) {
+		
+		UserInvitation invitation = signupService.readUserInvitation(token);
+		boolean valid = signupService.validateInvitation(invitation);
+		if (!valid) {
+			redirectAttributes.addFlashAttribute("toast", "signupFailed");
+			return "redirect:/";
+		}
+		else {
+			redirectAttributes.addFlashAttribute("toast", "signupConfirmed");
+			return "redirect:/login";
+		}
+	}
+	
 }

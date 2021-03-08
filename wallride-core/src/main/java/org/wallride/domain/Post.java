@@ -45,6 +45,7 @@ import java.util.*;
 @DynamicInsert
 @DynamicUpdate
 @Indexed
+@SuppressWarnings("serial")
 public class Post extends DomainObject<Long> {
 
 	public static final String SHALLOW_GRAPH_NAME = "POST_SHALLOW_GRAPH";

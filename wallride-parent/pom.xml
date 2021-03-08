@@ -9,7 +9,7 @@
         <version>1.0.0.BUILD-SNAPSHOT</version>
         <relativePath>../wallride-dependencies</relativePath>
     </parent>
-    <groupId>org.wallride</groupId>
+
     <artifactId>wallride-parent</artifactId>
     <packaging>pom</packaging>
     <name>WallRide Parent</name>

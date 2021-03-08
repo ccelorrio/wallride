@@ -31,6 +31,6 @@ public class ArticleUtils {
 	}
 
 	public Page<Article> search(ArticleSearchRequest request, int size) {
-		return articleService.getArticles(request, new PageRequest(0, size));
+		return articleService.getArticles(request, PageRequest.of(0, size));
 	}
 }

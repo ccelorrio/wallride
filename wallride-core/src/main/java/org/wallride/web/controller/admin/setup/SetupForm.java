@@ -16,15 +16,16 @@
 
 package org.wallride.web.controller.admin.setup;
 
-import org.hibernate.validator.constraints.Email;
-import org.wallride.domain.PersonalName;
-import org.wallride.model.SetupRequest;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.ArrayList;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
+import org.wallride.domain.PersonalName;
+import org.wallride.model.SetupRequest;
 
 @SuppressWarnings("serial")
 public class SetupForm implements Serializable {

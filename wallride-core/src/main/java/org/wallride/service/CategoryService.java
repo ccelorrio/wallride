@@ -190,12 +190,12 @@ public class CategoryService {
 		if (includeNoPosts) {
 			return categoryRepository.findAllDistinctByLanguageOrderByLftAsc(language);
 		} else {
-			return categoryRepository.findAll(CategorySpecifications.hasPosts(language), new Sort(Category_.lft.getName()));
+			return categoryRepository.findAll(CategorySpecifications.hasPosts(language), Sort.by(Category_.lft.getName()));
 		}
 	}
 
 	public Page<Category> getCategories(CategorySearchRequest request) {
-		Pageable pageable = new PageRequest(0, 10);
+		Pageable pageable = PageRequest.of(0, 10);
 		return getCategories(request, pageable);
 	}
 

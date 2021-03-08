@@ -36,17 +36,17 @@ public class UserSelect2Controller {
 	private UserService userService;
 
 	@RequestMapping(value="/{language}/users/select")
-	public @ResponseBody List<DomainObjectSelect2Model> select(
+	public @ResponseBody List<DomainObjectSelect2Model<?>> select(
 			@PathVariable String language,
 			@RequestParam(required=false) String keyword) {
 		UserSearchForm form = new UserSearchForm();
 		form.setKeyword(keyword);
 		Page<User> users = userService.getUsers(form.toUserSearchRequest());
 
-		List<DomainObjectSelect2Model> results = new ArrayList<>();
+		List<DomainObjectSelect2Model<?>> results = new ArrayList<>();
 		if (users.hasContent()) {
 			for (User user : users) {
-				DomainObjectSelect2Model model = new DomainObjectSelect2Model(user.getId(), user.toString());
+				DomainObjectSelect2Model<?> model = new DomainObjectSelect2Model<>(user.getId(), user.toString());
 				results.add(model);
 			}
 		}
@@ -55,7 +55,7 @@ public class UserSelect2Controller {
 
 	@RequestMapping(value="/{language}/users/select/{id}", method= RequestMethod.GET)
 	public @ResponseBody
-	DomainObjectSelect2Model select(
+	DomainObjectSelect2Model<?> select(
 			@PathVariable String language,
 			@PathVariable Long id,
 			HttpServletResponse response) throws IOException {
@@ -65,7 +65,7 @@ public class UserSelect2Controller {
 			return null;
 		}
 
-		DomainObjectSelect2Model model = new DomainObjectSelect2Model(user.getId(), user.toString());
+		DomainObjectSelect2Model<?> model = new DomainObjectSelect2Model<>(user.getId(), user.toString());
 		return model;
 	}
 }

@@ -41,18 +41,18 @@ public class PostSelectController {
 	private PostService postService;
 
 	@RequestMapping(value="/{language}/posts/select")
-	public @ResponseBody List<DomainObjectSelect2Model> select(
+	public @ResponseBody List<DomainObjectSelect2Model<?>> select(
 			@PathVariable String language,
 			@RequestParam(required=false) String keyword) {
 		PostSearchRequest request = new PostSearchRequest(language)
 				.withStatus(Post.Status.PUBLISHED)
 				.withKeyword(keyword);
-		Page<Post> posts = postService.getPosts(request, new PageRequest(0, 30));
+		Page<Post> posts = postService.getPosts(request, PageRequest.of(0, 30));
 
-		List<DomainObjectSelect2Model> results = new ArrayList<>();
+		List<DomainObjectSelect2Model<?>> results = new ArrayList<>();
 		if (posts.hasContent()) {
 			for (Post post : posts) {
-				DomainObjectSelect2Model model = new DomainObjectSelect2Model(post);
+				DomainObjectSelect2Model<?> model = new DomainObjectSelect2Model<>(post);
 				results.add(model);
 			}
 		}
@@ -61,7 +61,7 @@ public class PostSelectController {
 
 	@RequestMapping(value="/{language}/posts/select/{id}")
 	public @ResponseBody
-	DomainObjectSelect2Model select(
+	DomainObjectSelect2Model<?> select(
 			@PathVariable String language,
 			@RequestParam Long id,
 			HttpServletResponse response)
@@ -72,7 +72,7 @@ public class PostSelectController {
 			return null;
 		}
 
-		DomainObjectSelect2Model model = new DomainObjectSelect2Model(post);
+		DomainObjectSelect2Model<?> model = new DomainObjectSelect2Model<>(post);
 		return model;
 	}
 }

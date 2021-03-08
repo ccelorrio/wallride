@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DynamicInsert
 @DynamicUpdate
+@SuppressWarnings("serial")
 public class PasswordResetToken extends DomainObject<String> {
 
 	@Id

@@ -182,7 +182,7 @@ public class TagService {
 	}
 
 	public Page<Tag> getTags(TagSearchRequest request) {
-		Pageable pageable = new PageRequest(0, 10);
+		Pageable pageable = PageRequest.of(0, 10);
 		return getTags(request, pageable);
 	}
 

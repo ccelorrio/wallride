@@ -36,17 +36,17 @@ public class TagSelect2Controller {
 	private TagService tagService;
 
 	@RequestMapping(value="/{language}/tags/select")
-	public @ResponseBody List<DomainObjectSelect2Model> select(
+	public @ResponseBody List<DomainObjectSelect2Model<?>> select(
 			@PathVariable String language,
 			@RequestParam(required=false) String keyword) {
 		TagSearchForm form = new TagSearchForm();
 		form.setKeyword(keyword);
 		Page<Tag> tags = tagService.getTags(form.toTagSearchRequest());
 
-		List<DomainObjectSelect2Model> results = new ArrayList<>();
+		List<DomainObjectSelect2Model<?>> results = new ArrayList<>();
 		if (tags.hasContent()) {
 			for (Tag tag : tags) {
-				DomainObjectSelect2Model model = new DomainObjectSelect2Model(tag.getId(), tag.getName());
+				DomainObjectSelect2Model<?> model = new DomainObjectSelect2Model<>(tag.getId(), tag.getName());
 				results.add(model);
 			}
 		}
@@ -55,7 +55,7 @@ public class TagSelect2Controller {
 
 	@RequestMapping(value="/{language}/tags/select/{id}", method= RequestMethod.GET)
 	public @ResponseBody
-	DomainObjectSelect2Model select(
+	DomainObjectSelect2Model<?> select(
 			@PathVariable String language,
 			@PathVariable Long id,
 			HttpServletResponse response) throws IOException {
@@ -65,7 +65,7 @@ public class TagSelect2Controller {
 			return null;
 		}
 
-		DomainObjectSelect2Model model = new DomainObjectSelect2Model(tag.getName(), tag.getName());
+		DomainObjectSelect2Model<?> model = new DomainObjectSelect2Model<>(tag.getName(), tag.getName());
 		return model;
 	}
 }

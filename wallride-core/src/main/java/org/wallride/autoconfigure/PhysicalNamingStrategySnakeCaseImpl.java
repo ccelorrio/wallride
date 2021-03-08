@@ -22,6 +22,7 @@ import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class PhysicalNamingStrategySnakeCaseImpl implements PhysicalNamingStrategy, Serializable {
 
 	/**

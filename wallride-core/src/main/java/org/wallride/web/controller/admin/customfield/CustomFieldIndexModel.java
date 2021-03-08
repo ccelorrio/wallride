@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("serial")
 public class CustomFieldIndexModel extends ArrayList<Map<String, Object>> {
 	
 	public CustomFieldIndexModel(List<Long> ids, BindingResult bindingResult) {

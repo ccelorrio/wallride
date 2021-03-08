@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@SuppressWarnings("serial")
 public class ArticleBulkPublishRequest implements Serializable {
 
 	private List<Long> ids;

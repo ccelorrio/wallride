@@ -151,7 +151,7 @@ public class ArticleEditController {
 	}
 
 	@RequestMapping(method=RequestMethod.POST, params="draft")
-	public @ResponseBody DomainObjectSavedModel saveAsDraft(
+	public @ResponseBody DomainObjectSavedModel<?> saveAsDraft(
 			@PathVariable String language,
 			@Validated @ModelAttribute("form") ArticleEditForm form,
 			BindingResult errors,

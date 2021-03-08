@@ -16,7 +16,28 @@
 
 package org.wallride.service;
 
-import org.apache.commons.lang.ArrayUtils;
+import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -40,26 +61,34 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.MessageCodesResolver;
 import org.wallride.autoconfigure.WallRideCacheConfiguration;
 import org.wallride.autoconfigure.WallRideProperties;
-import org.wallride.domain.*;
+import org.wallride.domain.Article;
+import org.wallride.domain.Category;
+import org.wallride.domain.CustomField;
+import org.wallride.domain.CustomFieldValue;
+import org.wallride.domain.Media;
+import org.wallride.domain.Post;
+import org.wallride.domain.Seo;
+import org.wallride.domain.Tag;
+import org.wallride.domain.User;
 import org.wallride.exception.DuplicateCodeException;
 import org.wallride.exception.EmptyCodeException;
 import org.wallride.exception.NotNullException;
 import org.wallride.exception.ServiceException;
-import org.wallride.model.*;
-import org.wallride.repository.*;
+import org.wallride.model.ArticleBulkDeleteRequest;
+import org.wallride.model.ArticleBulkPublishRequest;
+import org.wallride.model.ArticleBulkUnpublishRequest;
+import org.wallride.model.ArticleCreateRequest;
+import org.wallride.model.ArticleDeleteRequest;
+import org.wallride.model.ArticleSearchRequest;
+import org.wallride.model.ArticleUpdateRequest;
+import org.wallride.repository.ArticleRepository;
+import org.wallride.repository.ArticleSpecifications;
+import org.wallride.repository.MediaRepository;
+import org.wallride.repository.PostRepository;
+import org.wallride.repository.TagRepository;
 import org.wallride.support.AuthorizedUser;
 import org.wallride.support.CodeFormatter;
 import org.wallride.web.controller.admin.article.CustomFieldValueEditForm;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.text.ParseException;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @Transactional(rollbackFor=Exception.class)
@@ -592,7 +621,7 @@ public class ArticleService {
 	}
 
 	public Page<Article> getArticles(ArticleSearchRequest request) {
-		Pageable pageable = new PageRequest(0, 10);
+		Pageable pageable = PageRequest.of(0, 10);
 		return getArticles(request, pageable);
 	}
 
@@ -627,7 +656,7 @@ public class ArticleService {
 				.withCategoryCodes(code)
 				.withStatus(status);
 
-		Pageable pageable = new PageRequest(0, size);
+		Pageable pageable = PageRequest.of(0, size);
 		Page<Article> page = articleRepository.search(request, pageable);
 		return new TreeSet<>(page.getContent());
 	}
@@ -638,7 +667,7 @@ public class ArticleService {
 				.withLanguage(language)
 				.withStatus(status);
 
-		Pageable pageable = new PageRequest(0, size);
+		Pageable pageable = PageRequest.of(0, size);
 		Page<Article> page = articleRepository.search(request, pageable);
 		return new TreeSet<>(page.getContent());
 	}

@@ -20,6 +20,7 @@ import org.wallride.domain.DomainObject;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class DomainObjectDeletedModel<ID extends Serializable> implements Serializable {
 
 	private ID id;

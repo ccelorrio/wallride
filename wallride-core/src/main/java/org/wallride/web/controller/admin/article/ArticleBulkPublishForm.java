@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@SuppressWarnings("serial")
 public class ArticleBulkPublishForm implements Serializable {
 
 	private List<Long> ids;

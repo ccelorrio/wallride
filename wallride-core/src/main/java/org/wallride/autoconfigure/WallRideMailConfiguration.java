@@ -16,8 +16,11 @@
 
 package org.wallride.autoconfigure;
 
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.autoconfigure.mail.MailProperties;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration;
 import org.springframework.boot.autoconfigure.thymeleaf.ThymeleafProperties;
 import org.springframework.context.ApplicationContext;
@@ -29,11 +32,6 @@ import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
-
-import javax.inject.Inject;
-import javax.mail.Session;
-import java.util.HashSet;
-import java.util.Set;
 
 @Configuration
 public class WallRideMailConfiguration extends MailSenderAutoConfiguration {

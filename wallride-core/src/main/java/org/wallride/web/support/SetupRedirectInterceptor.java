@@ -16,16 +16,16 @@
 
 package org.wallride.web.support;
 
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 import org.springframework.web.util.UrlPathHelper;
 import org.wallride.domain.Blog;
 import org.wallride.service.BlogService;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-public class SetupRedirectInterceptor extends HandlerInterceptorAdapter {
+public class SetupRedirectInterceptor implements HandlerInterceptor {
 
     private static final String SETUP_PATH = "/_admin/setup";
 

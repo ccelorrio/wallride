@@ -25,7 +25,7 @@ public class TreeNode<T> {
 
 	private T object;
 
-	private TreeNode parent;
+	private TreeNode<T> parent;
 
 	private List<TreeNode<T>> children = new ArrayList<>();
 
@@ -37,11 +37,11 @@ public class TreeNode<T> {
 		return object;
 	}
 
-	public TreeNode getParent() {
+	public TreeNode<T> getParent() {
 		return parent;
 	}
 
-	public void setParent(TreeNode parent) {
+	public void setParent(TreeNode<T> parent) {
 		this.parent = parent;
 	}
 
@@ -57,7 +57,7 @@ public class TreeNode<T> {
 		if (getObject().equals(page)) {
 			return true;
 		}
-		for (TreeNode node : getChildren()) {
+		for (TreeNode<T> node : getChildren()) {
 			if (node.contains(page)) {
 				return true;
 			}

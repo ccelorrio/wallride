@@ -21,17 +21,28 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
+import org.springframework.format.support.FormattingConversionService;
+import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.servlet.resource.ResourceUrlProvider;
 import org.wallride.service.BlogService;
 import org.wallride.service.PageService;
-import org.wallride.web.controller.guest.*;
+import org.wallride.web.controller.guest.CategoryController;
+import org.wallride.web.controller.guest.FeedController;
+import org.wallride.web.controller.guest.IndexController;
+import org.wallride.web.controller.guest.SearchController;
+import org.wallride.web.controller.guest.TagController;
 import org.wallride.web.controller.guest.article.ArticleDescribeController;
 import org.wallride.web.controller.guest.article.ArticleIndexController;
 import org.wallride.web.controller.guest.comment.CommentRestController;
 import org.wallride.web.controller.guest.page.PageDescribeController;
-import org.wallride.web.controller.guest.user.*;
+import org.wallride.web.controller.guest.user.LoginController;
+import org.wallride.web.controller.guest.user.PasswordResetController;
+import org.wallride.web.controller.guest.user.PasswordUpdateController;
+import org.wallride.web.controller.guest.user.ProfileUpdateController;
+import org.wallride.web.controller.guest.user.SignupController;
 
 @Configuration
 public class WebGuestConfiguration extends DelegatingWebMvcConfiguration {
@@ -39,9 +50,12 @@ public class WebGuestConfiguration extends DelegatingWebMvcConfiguration {
 	@Autowired
 	private PageDescribeController pageDescribeController;
 
+
 	@Override
-	public RequestMappingHandlerMapping requestMappingHandlerMapping() {
-		RequestMappingHandlerMapping handlerMapping = super.requestMappingHandlerMapping();
+	public RequestMappingHandlerMapping requestMappingHandlerMapping(
+			ContentNegotiationManager contentNegotiationManager, FormattingConversionService conversionService,
+			ResourceUrlProvider resourceUrlProvider) {
+		RequestMappingHandlerMapping handlerMapping = super.requestMappingHandlerMapping(contentNegotiationManager, conversionService, resourceUrlProvider);
 		handlerMapping.setOrder(Ordered.LOWEST_PRECEDENCE);
 		return handlerMapping;
 	}

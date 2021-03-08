@@ -16,6 +16,12 @@
 
 package org.wallride.web.controller.admin.user;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
@@ -24,18 +30,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.wallride.domain.Post;
 import org.wallride.domain.User;
 import org.wallride.service.ArticleService;
 import org.wallride.service.UserService;
 import org.wallride.web.support.HttpNotFoundException;
-
-import javax.inject.Inject;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping(value="/{language}/users/describe", method= RequestMethod.GET)
@@ -60,6 +65,7 @@ public class UserDescribeController {
 		return query;
 	}
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping
 	public String describe(
 			@PathVariable String language,

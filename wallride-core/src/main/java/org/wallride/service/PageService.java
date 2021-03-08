@@ -16,7 +16,26 @@
 
 package org.wallride.service;
 
-import org.apache.commons.lang.ArrayUtils;
+import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -39,26 +58,31 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.MessageCodesResolver;
 import org.wallride.autoconfigure.WallRideCacheConfiguration;
 import org.wallride.autoconfigure.WallRideProperties;
-import org.wallride.domain.*;
+import org.wallride.domain.Category;
+import org.wallride.domain.CustomField;
+import org.wallride.domain.CustomFieldValue;
+import org.wallride.domain.Media;
+import org.wallride.domain.Page;
+import org.wallride.domain.Post;
+import org.wallride.domain.Seo;
+import org.wallride.domain.Tag;
+import org.wallride.domain.User;
 import org.wallride.exception.DuplicateCodeException;
 import org.wallride.exception.EmptyCodeException;
 import org.wallride.exception.ServiceException;
-import org.wallride.model.*;
-import org.wallride.repository.*;
+import org.wallride.model.PageBulkDeleteRequest;
+import org.wallride.model.PageCreateRequest;
+import org.wallride.model.PageDeleteRequest;
+import org.wallride.model.PageSearchRequest;
+import org.wallride.model.PageUpdateRequest;
+import org.wallride.repository.MediaRepository;
+import org.wallride.repository.PageRepository;
+import org.wallride.repository.PageSpecifications;
+import org.wallride.repository.PostRepository;
+import org.wallride.repository.TagRepository;
 import org.wallride.support.AuthorizedUser;
 import org.wallride.support.CodeFormatter;
 import org.wallride.web.controller.admin.article.CustomFieldValueEditForm;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.text.ParseException;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @Transactional(rollbackFor = Exception.class)

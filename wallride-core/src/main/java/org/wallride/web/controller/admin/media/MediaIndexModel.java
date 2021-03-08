@@ -22,6 +22,7 @@ import org.wallride.domain.Media;
 import java.io.Serializable;
 import java.time.format.DateTimeFormatter;
 
+@SuppressWarnings("serial")
 public class MediaIndexModel implements Serializable {
 
 	private String url;

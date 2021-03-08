@@ -16,6 +16,10 @@
 
 package org.wallride.web.support;
 
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -25,12 +29,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.thymeleaf.context.IExpressionContext;
 import org.wallride.autoconfigure.WallRideProperties;
-import org.wallride.domain.*;
+import org.wallride.domain.Article;
+import org.wallride.domain.Blog;
+import org.wallride.domain.CustomField;
+import org.wallride.domain.CustomFieldValue;
+import org.wallride.domain.Page;
+import org.wallride.domain.Post;
 import org.wallride.support.PostUtils;
-
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Posts {
 
@@ -188,7 +193,7 @@ public class Posts {
 			if (src.startsWith(wallRideProperties.getMediaUrlPrefix())) {
 				String style = element.attr("style");
 				Pattern pattern = Pattern.compile("width: ([0-9]+)px;");
-				Matcher matcher = pattern.matcher(element.attr("style"));
+				Matcher matcher = pattern.matcher(style);
 				if (matcher.find()) {
 					String replaced = src + "?w=" + Integer.parseInt(matcher.group(1)) * 2;
 					element.attr("src", replaced);

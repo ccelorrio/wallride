@@ -16,13 +16,9 @@
 
 package org.wallride.web.support;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.tuckey.web.filters.urlrewrite.*;
-import org.tuckey.web.filters.urlrewrite.extend.RewriteMatch;
-import org.tuckey.web.filters.urlrewrite.extend.RewriteRule;
-import org.wallride.service.BlogService;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -30,9 +26,17 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tuckey.web.filters.urlrewrite.Conf;
+import org.tuckey.web.filters.urlrewrite.RewrittenUrl;
+import org.tuckey.web.filters.urlrewrite.Rule;
+import org.tuckey.web.filters.urlrewrite.RuleChain;
+import org.tuckey.web.filters.urlrewrite.UrlRewriteFilter;
+import org.tuckey.web.filters.urlrewrite.extend.RewriteMatch;
+import org.tuckey.web.filters.urlrewrite.extend.RewriteRule;
+import org.wallride.service.BlogService;
 
 public class ExtendedUrlRewriteFilter extends UrlRewriteFilter {
 
@@ -124,7 +128,7 @@ public class ExtendedUrlRewriteFilter extends UrlRewriteFilter {
 		}
 
 		@Override
-		public List getErrors() {
+		public List<?> getErrors() {
 			return null;
 		}
 	}

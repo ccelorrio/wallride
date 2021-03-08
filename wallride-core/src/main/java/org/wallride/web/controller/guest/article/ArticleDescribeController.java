@@ -80,7 +80,7 @@ public class ArticleDescribeController {
 		CommentSearchRequest request = new CommentSearchRequest();
 		request.setPostId(article.getId());
 		request.setApproved(Boolean.TRUE);
-		Page<Comment> comments = commentService.getComments(request, new PageRequest(0, 1000));
+		Page<Comment> comments = commentService.getComments(request, PageRequest.of(0, 1000));
 
 		List<Long> ids = articleService.getArticleIds(new ArticleSearchRequest().withStatus(Post.Status.PUBLISHED));
 		if (!CollectionUtils.isEmpty(ids)) {

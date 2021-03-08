@@ -16,6 +16,7 @@
 
 package org.wallride.exception;
 
+@SuppressWarnings("serial")
 public class EmptyCodeException extends ServiceException {
 
 	public EmptyCodeException() {

@@ -16,8 +16,26 @@
 
 package org.wallride.service;
 
-import com.google.api.services.analytics.Analytics;
-import com.google.api.services.analytics.model.GaData;
+import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -48,7 +66,12 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.wallride.autoconfigure.WallRideCacheConfiguration;
-import org.wallride.domain.*;
+import org.wallride.domain.BlogLanguage;
+import org.wallride.domain.GoogleAnalytics;
+import org.wallride.domain.PopularPost;
+import org.wallride.domain.PopularPost_;
+import org.wallride.domain.Post;
+import org.wallride.domain.Post_;
 import org.wallride.exception.GoogleAnalyticsException;
 import org.wallride.exception.ServiceException;
 import org.wallride.model.PostSearchRequest;
@@ -60,17 +83,16 @@ import org.wallride.web.controller.guest.page.PageDescribeController;
 import org.wallride.web.support.BlogLanguageRewriteMatch;
 import org.wallride.web.support.BlogLanguageRewriteRule;
 
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import com.google.api.services.analyticsreporting.v4.AnalyticsReporting;
+import com.google.api.services.analyticsreporting.v4.model.DateRange;
+import com.google.api.services.analyticsreporting.v4.model.Dimension;
+import com.google.api.services.analyticsreporting.v4.model.GetReportsRequest;
+import com.google.api.services.analyticsreporting.v4.model.GetReportsResponse;
+import com.google.api.services.analyticsreporting.v4.model.Metric;
+import com.google.api.services.analyticsreporting.v4.model.OrderBy;
+import com.google.api.services.analyticsreporting.v4.model.ReportData;
+import com.google.api.services.analyticsreporting.v4.model.ReportRequest;
+import com.google.api.services.analyticsreporting.v4.model.ReportRow;
 
 /**
  *
@@ -160,7 +182,7 @@ public class PostService {
 			return;
 		}
 
-		Analytics analytics = GoogleAnalyticsUtils.buildClient(googleAnalytics);
+		AnalyticsReporting analytics = GoogleAnalyticsUtils.buildClient(googleAnalytics);
 
 		WebApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(servletContext, "org.springframework.web.servlet.FrameworkServlet.CONTEXT.guestServlet");
 		if (context == null) {
@@ -188,24 +210,62 @@ public class PostService {
 				}
 
 				DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-				Analytics.Data.Ga.Get get = analytics.data().ga()
-						.get(googleAnalytics.getProfileId(), startDate.format(dateTimeFormatter), now.format(dateTimeFormatter), "ga:sessions")
-						.setDimensions(String.format("ga:pagePath", googleAnalytics.getCustomDimensionIndex()))
-						.setSort(String.format("-ga:sessions", googleAnalytics.getCustomDimensionIndex()))
-						.setStartIndex(startIndex)
-						.setMaxResults(GoogleAnalyticsUtils.MAX_RESULTS);
-				if (blogLanguage.getBlog().isMultiLanguage()) {
-					get.setFilters("ga:pagePath=~/" + blogLanguage.getLanguage() + "/");
-				}
+				
+				// Create the DateRange object.
+			    DateRange dateRange = new DateRange();
+			    dateRange.setStartDate(startDate.format(dateTimeFormatter));
+			    dateRange.setEndDate(now.format(dateTimeFormatter));
+			    
+			    // Create the Metrics object.
+			    Metric sessions = new Metric()
+			        .setExpression("ga:pageViews")
+			        .setAlias("sessions");
+				
+				//Create the Dimensions object.
+			    Dimension pagePathDimension = new Dimension()
+			        .setName(String.format("ga:pagePath", googleAnalytics.getCustomDimensionIndex()));
+			    
+			    OrderBy orderBy = new OrderBy()
+			    		.setFieldName("ga:pageViews")
+			    		.setSortOrder("DESCENDING");
+				
+				// Create the ReportRequest object.
+			    ReportRequest reportRequest = new ReportRequest()
+			        .setViewId(googleAnalytics.getProfileId())
+			        .setDateRanges(Arrays.asList(dateRange))
+			        .setDimensions(Arrays.asList(pagePathDimension))
+			        .setMetrics(Arrays.asList(sessions))
+			        .setPageSize(GoogleAnalyticsUtils.MAX_RESULTS)
+			        .setOrderBys(Arrays.asList(orderBy));
+			    if (blogLanguage.getBlog().isMultiLanguage()) {
+			    	reportRequest.setFiltersExpression("ga:pagePath=~/" + blogLanguage.getLanguage() + "/");
+				}   
+			        
+			    logger.info(reportRequest.toString());
+			    ArrayList<ReportRequest> reportRequests = new ArrayList<ReportRequest>();
+			    reportRequests.add(reportRequest);
 
-				logger.info(get.toString());
-				final GaData gaData = get.execute();
-				if (CollectionUtils.isEmpty(gaData.getRows())) {
+			    // Create the GetReportsRequest object.
+			    GetReportsRequest getReport = new GetReportsRequest()
+			        .setReportRequests(reportRequests);
+				
+				// Call the batchGet method.
+				final GetReportsResponse reportResponse = analytics.reports().batchGet(getReport).execute();
+				if (CollectionUtils.isEmpty(reportResponse.getReports())) {
 					break;
 				}
-
-				for (List row : gaData.getRows()) {
-					UriComponents uriComponents = UriComponentsBuilder.fromUriString((String) row.get(0)).build();
+				
+				ReportData reportData = reportResponse.getReports().get(0).getData();
+				logger.info("INFO FROM GOOGLE ANALYTICS reportData: " + reportData);
+				
+				List<ReportRow> rows = reportData.getRows();
+				if (CollectionUtils.isEmpty(rows)) {
+					return;
+				}
+			      
+				for (ReportRow row : rows) {
+					UriComponents uriComponents = UriComponentsBuilder.fromUriString((String) row.getDimensions().get(0).toString()).build();
+					logger.info("Processing [{}]", uriComponents.toString());
 
 					MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
 					request.setRequestURI(uriComponents.getPath());
@@ -228,7 +288,8 @@ public class PostService {
 					try {
 						handler = mapping.getHandler(request);
 					} catch (Exception e) {
-						throw new ServiceException(e);
+						logger.error("Error getting handler for " + request.toString(), e);
+						continue;
 					}
 
 					if (!(handler.getHandler() instanceof HandlerMethod)) {
@@ -236,7 +297,9 @@ public class PostService {
 					}
 
 					HandlerMethod method = (HandlerMethod) handler.getHandler();
-					if (!method.getBeanType().equals(ArticleDescribeController.class) && !method.getBeanType().equals(PageDescribeController.class)) {
+					logger.debug("Controller used [{}]", method.getBeanType());
+					if (!method.getBeanType().equals(ArticleDescribeController.class) 
+							&& !method.getBeanType().equals(PageDescribeController.class)) {
 						continue;
 					}
 
@@ -249,7 +312,8 @@ public class PostService {
 					}
 
 					if (!posts.containsKey(post)) {
-						posts.put(post, Long.parseLong((String) row.get(1)));
+						Long views = Long.parseLong((String) row.getMetrics().get(0).getValues().get(0));
+						posts.put(post, views);
 					}
 					if (posts.size() >= maxRank) {
 						break;
@@ -261,7 +325,7 @@ public class PostService {
 				}
 
 				startIndex += GoogleAnalyticsUtils.MAX_RESULTS;
-				totalResults = gaData.getTotalResults();
+				totalResults = rows.size();
 			} catch (IOException e) {
 				logger.warn("Failed to synchronize with Google Analytics", e);
 				if (currentRetry >= GoogleAnalyticsUtils.MAX_RETRY) {
@@ -297,7 +361,7 @@ public class PostService {
 	}
 
 	public Page<Post> getPosts(PostSearchRequest request) {
-		Pageable pageable = new PageRequest(0, 10);
+		Pageable pageable = PageRequest.of(0, 10);
 		return getPosts(request, pageable);
 	}
 
@@ -315,6 +379,7 @@ public class PostService {
 	@Cacheable(value = WallRideCacheConfiguration.POPULAR_POST_CACHE, key = "'list.type.' + #language + '.' + #type")
 	public SortedSet<PopularPost> getPopularPosts(String language, PopularPost.Type type) {
 		Specification<PopularPost> spec = (root, query, cb) -> {
+			@SuppressWarnings("unchecked")
 			Join<PopularPost, Post> post = (Join<PopularPost, Post>) root.fetch(PopularPost_.post);
 			post.fetch(Post_.cover);
 			post.fetch(Post_.author);

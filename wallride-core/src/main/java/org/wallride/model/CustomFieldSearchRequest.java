@@ -7,6 +7,7 @@ import org.wallride.domain.BlogLanguage;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class CustomFieldSearchRequest implements Serializable {
 
 	private String keyword;

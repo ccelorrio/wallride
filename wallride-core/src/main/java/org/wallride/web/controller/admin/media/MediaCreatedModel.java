@@ -21,6 +21,7 @@ import org.wallride.domain.Media;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class MediaCreatedModel implements Serializable {
 
 	private String id;

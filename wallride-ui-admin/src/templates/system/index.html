@@ -67,6 +67,30 @@
 												</form>
 											</td>
 										</tr>
+										<tr>
+											<th>Remove Unused Media</th>
+											<td>
+												<form th:action="@{__${ADMIN_PATH}__/system/remove-unused-media}" class="form-horizontal" method="post">
+													<div class="alert alert-success" th:if="${removeUnusedMedia}">
+														<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>														
+														<span th:text="${removeUnusedMedia}">Removed XXX files...</span>
+													</div>
+													<button class="btn btn-sm btn-primary ok" th:text="#{RemoveUnusedMedia}">Remove Unused Media</button>
+												</form>
+											</td>
+										</tr>
+										<tr>
+											<th>Remove Unused Media RESIZE</th>
+											<td>
+												<form th:action="@{__${ADMIN_PATH}__/system/remove-unused-media?resize=1}" class="form-horizontal" method="post">
+													<div class="alert alert-success" th:if="${removeUnusedMedia}">
+														<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>														
+														<span th:text="${removeUnusedMedia}">Removed XXX files...</span>
+													</div>
+													<button class="btn btn-sm btn-primary ok" th:text="#{RemoveUnusedMedia}">Remove Unused Media</button>
+												</form>
+											</td>
+										</tr>
 									</tbody>
 								</table>
 							</div>

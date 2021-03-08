@@ -16,6 +16,13 @@
 
 package org.wallride.repository;
 
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.LockModeType;
+
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
@@ -25,23 +32,18 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.wallride.domain.User;
 
-import javax.persistence.LockModeType;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-
 @Repository
 @Transactional
 public interface UserRepository extends JpaRepository<User, Long>, UserRepositoryCustom {
 	
-//	@EntityGraph(value = User.DEEP_GRAPH_NAME, type = EntityGraph.EntityGraphType.FETCH)
+	@EntityGraph(value = User.DEEP_GRAPH_NAME, type = EntityGraph.EntityGraphType.FETCH)
 	User findOneById(Long id);
 
 //	@EntityGraph(value = User.DEEP_GRAPH_NAME, type = EntityGraph.EntityGraphType.FETCH)
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	User findOneForUpdateById(Long id);
 
-//	@EntityGraph(value = User.DEEP_GRAPH_NAME, type = EntityGraph.EntityGraphType.FETCH)
+	@EntityGraph(value = User.DEEP_GRAPH_NAME, type = EntityGraph.EntityGraphType.FETCH)
 	User findOneByLoginId(String loginId);
 
 //	@EntityGraph(value = User.DEEP_GRAPH_NAME, type = EntityGraph.EntityGraphType.FETCH)

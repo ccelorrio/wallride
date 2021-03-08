@@ -8,29 +8,30 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack -p"
   },
-  "author": "",
+  "author": "cca",
   "license": "ISC",
   "devDependencies": {
-    "copy-webpack-plugin": "5.0.2",
-    "css-loader": "0.28.9",
-    "extract-text-webpack-plugin": "4.0.0-beta.0",
-    "file-loader": "1.1.6",
+    "copy-webpack-plugin": "^6.4.1",
+    "css-loader": "^4.3.0",
+    "file-loader": "^6.2.0",
+    "mini-css-extract-plugin": "^0.11.3",
     "style-loader": "0.20.1",
     "url-loader": "0.6.2",
-    "webpack": "4.29.6",
-    "webpack-cli": "3.3.0",
-    "webpack-dev-server": "3.2.1"
+    "webpack": "^4.46.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
     "blueimp-file-upload": "9.28.0",
-    "bootstrap": "3.3.7",
+    "bootstrap": "3.4.1",
     "froala-editor": "2.9.4",
-    "jquery": "3.3.1",
+    "jquery": "^3.5.1",
     "jquery-datetimepicker": "2.4.0",
     "jquery-ui": "1.12.1",
     "jsrender": "0.9.90",
     "moment": "2.20.1",
     "pnotify": "3.2.1",
+    "popper.js": "^1.16.1",
     "select2": "3.5.2-browserify"
   }
 }

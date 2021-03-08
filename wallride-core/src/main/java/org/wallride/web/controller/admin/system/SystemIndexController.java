@@ -16,6 +16,11 @@
 
 package org.wallride.web.controller.admin.system;
 
+import javax.inject.Inject;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -25,19 +30,16 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.wallride.exception.ServiceException;
+import org.wallride.service.MediaService;
 import org.wallride.service.SystemService;
 import org.wallride.web.support.DefaultModelAttributeInterceptor;
-
-import javax.inject.Inject;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @Controller
 @RequestMapping("/{language}/system")
@@ -47,6 +49,9 @@ public class SystemIndexController {
 
 	@Inject
 	private SystemService systemService;
+	
+	@Inject
+	private MediaService mediaService;
 
 	@Inject
 	private ServletContext servletContext;
@@ -95,6 +100,22 @@ public class SystemIndexController {
 		logger.info("Clear cache finished");
 
 		redirectAttributes.addFlashAttribute("clearCache", true);
+		redirectAttributes.addAttribute("language", language);
+		return "redirect:/_admin/{language}/system";
+	}
+	
+	@Transactional(propagation = Propagation.REQUIRED)
+	@RequestMapping(value = "/remove-unused-media", method = RequestMethod.POST)
+	public String removeUnusedMedia(
+			@PathVariable String language,
+			@RequestParam(defaultValue = "false") Boolean resize,
+			RedirectAttributes redirectAttributes) throws Exception {
+
+		logger.info("Remove Unused Media started");
+		String result = mediaService.removeUnusuedMedia(resize);
+		logger.info("Remove Unused Media finished: " + result);
+
+		redirectAttributes.addFlashAttribute("removeUnusedMedia", result);
 		redirectAttributes.addAttribute("language", language);
 		return "redirect:/_admin/{language}/system";
 	}

@@ -16,6 +16,13 @@
 
 package org.wallride.web.controller.admin.page;
 
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+
+import javax.inject.Inject;
+import javax.validation.groups.Default;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -26,7 +33,14 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.wallride.domain.Category;
 import org.wallride.domain.CustomField;
@@ -41,11 +55,6 @@ import org.wallride.support.AuthorizedUser;
 import org.wallride.support.CategoryUtils;
 import org.wallride.web.support.DomainObjectSavedModel;
 import org.wallride.web.support.RestValidationErrorModel;
-
-import javax.inject.Inject;
-import javax.validation.groups.Default;
-import java.util.List;
-import java.util.SortedSet;
 
 @Controller
 @RequestMapping("/{language}/pages/create")
@@ -108,9 +117,27 @@ public class PageCreateController {
 	public String partCategoryFieldset(@PathVariable String language) {
 		return "page/create::#category-fieldset";
 	}
+	
+	@RequestMapping(method=RequestMethod.GET, params="code")
+	public String createFromCode(@PathVariable String language,
+			@RequestParam String code,
+			Model model) {
+		Page original = (Page) model.asMap().get("original");
+		logger.debug("PAGE CREATE FROM " + original);
+		logger.debug("PAGE CREATE FROM CODE " + code);
+		if (original != null) {
+			Set<CustomField> customFields = customFieldService.getAllCustomFields(language);
+			PageEditForm form = PageEditForm.fromDomainObject(original, customFields);
+			form.setLanguage(language);
+			
+			model.addAttribute("form", form);
+			model.addAttribute("original", original);
+		}
+		return "page/create";
+	}
 
 	@RequestMapping(method=RequestMethod.POST, params="draft")
-	public @ResponseBody DomainObjectSavedModel saveAsDraft(
+	public @ResponseBody DomainObjectSavedModel<?> saveAsDraft(
 			@PathVariable String language,
 			@Validated @ModelAttribute("form") PageCreateForm form,
 			BindingResult errors,

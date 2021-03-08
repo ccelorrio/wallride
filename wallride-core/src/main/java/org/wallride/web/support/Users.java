@@ -31,11 +31,8 @@ public class Users {
 
 	private IExpressionContext context;
 
-	private WallRideProperties wallRideProperties;
-
 	public Users(IExpressionContext context, WallRideProperties wallRideProperties) {
 		this.context = context;
-		this.wallRideProperties = wallRideProperties;
 	}
 
 	public String link(User user) {

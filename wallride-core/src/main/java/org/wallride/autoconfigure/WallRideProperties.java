@@ -27,6 +27,7 @@ public class WallRideProperties {
 
 	public static final String DEFAULT_CONFIG_PATH_NAME = "config/";
 	public static final String DEFAULT_MEDIA_PATH_NAME = "media/";
+	public static final String DEFAULT_HOME_PROPERTY = "file:./home/";
 
 	private String home;
 	private String configLocation;

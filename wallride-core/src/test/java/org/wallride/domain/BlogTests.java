@@ -1,5 +1,7 @@
 package org.wallride.domain;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,8 +13,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.wallride.autoconfigure.WallRideProperties;
 import org.wallride.test.TestConfiguration;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test class for the {@link Blog}.

@@ -80,7 +80,7 @@ public class ProfileUpdateController {
 		redirectAttributes.addFlashAttribute(ERRORS_MODEL_KEY, errors);
 
 		if (errors.hasErrors()) {
-			return "redirect:/settings/profile?step.edit";
+			return "redirect:/account/profile?step.edit";
 		}
 
 		ProfileUpdateRequest request = new ProfileUpdateRequest()
@@ -94,14 +94,14 @@ public class ProfileUpdateController {
 			updatedUser = userService.updateProfile(request, authorizedUser);
 		} catch (DuplicateLoginIdException e) {
 			errors.rejectValue("loginId", "NotDuplicate");
-			return "redirect:/settings/profile?step.edit";
+			return "redirect:/account/profile?step.edit";
 		} catch (DuplicateEmailException e) {
 			errors.rejectValue("email", "NotDuplicate");
-			return "redirect:/settings/profile?step.edit";
+			return "redirect:/account/profile?step.edit";
 		}
 
 		redirectAttributes.getFlashAttributes().clear();
 		redirectAttributes.addFlashAttribute("updatedUser", updatedUser);
-		return "redirect:/settings/profile";
+		return "redirect:/account/profile";
 	}
 }

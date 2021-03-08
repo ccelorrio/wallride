@@ -1,15 +1,31 @@
 package org.wallride.domain;
 
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.search.annotations.*;
-import org.springframework.util.StringUtils;
-
-import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.SortableField;
+import org.springframework.util.ObjectUtils;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"post_id", "custom_field_id"}))
@@ -147,14 +163,14 @@ public class CustomFieldValue extends DomainObject<Long> implements Comparable<C
 			case TEXT:
 			case SELECTBOX:
 			case RADIO:
-				if (StringUtils.isEmpty(getStringValue())) {
+				if (ObjectUtils.isEmpty(getStringValue())) {
 					return true;
 				}
 				return false;
 			case TEXTAREA:
 			case HTML:
 			case CHECKBOX:
-				if (StringUtils.isEmpty(getTextValue())) {
+				if (ObjectUtils.isEmpty(getTextValue())) {
 					return true;
 				}
 				return false;

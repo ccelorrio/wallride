@@ -16,21 +16,18 @@
 
 package org.wallride.web.support;
 
+import java.util.List;
+
 import org.thymeleaf.context.IExpressionContext;
 import org.wallride.domain.Category;
 import org.wallride.model.TreeNode;
 import org.wallride.support.CategoryUtils;
 
-import java.util.List;
-
 public class Categories {
-
-	private IExpressionContext context;
 
 	private CategoryUtils CategoryUtils;
 
 	public Categories(IExpressionContext context, CategoryUtils CategoryUtils) {
-		this.context = context;
 		this.CategoryUtils = CategoryUtils;
 	}
 
