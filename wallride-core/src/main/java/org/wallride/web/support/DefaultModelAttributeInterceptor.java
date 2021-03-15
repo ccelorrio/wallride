@@ -17,13 +17,18 @@
 package org.wallride.web.support;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,6 +47,8 @@ import org.wallride.support.AuthorizedUser;
 public class DefaultModelAttributeInterceptor implements HandlerInterceptor {
 
 	private BlogService blogService;
+	
+	private static Logger logger = LoggerFactory.getLogger(DefaultModelAttributeInterceptor.class);
 
 	public void setBlogService(BlogService blogService) {
 		this.blogService = blogService;
@@ -69,7 +76,23 @@ public class DefaultModelAttributeInterceptor implements HandlerInterceptor {
 		}
 
 		String currentLanguage = LocaleContextHolder.getLocale().getLanguage();
+		
+		final String[] domainParts = request.getServerName().split("\\.");
+        String mainDomain;
+        String subDomain = null;
 
+        final int dpLength = domainParts.length;
+        if (dpLength > 2) {
+            mainDomain = domainParts[dpLength - 2] + "." + domainParts[dpLength - 1];
+
+            subDomain = reverseDomain(domainParts);
+        } else {
+            mainDomain = request.getServerName();
+        }
+		logger.debug("Current Domain: " + mainDomain + " Current Subdomain " + subDomain);
+		
+		mv.addObject("WEBSITE_DOMAIN", mainDomain);
+		
 		mv.addObject("LANGUAGES", languages.toArray(new String[languages.size()]));
 		mv.addObject("LANGUAGE_LINKS", buildLanguageLinks(currentLanguage, languages, request));
 
@@ -133,4 +156,13 @@ public class DefaultModelAttributeInterceptor implements HandlerInterceptor {
 		}
 		return languageLinks;
 	}
+	
+	private String reverseDomain(final String[] domainParts) {
+        final List<String> subdomainList = Arrays.stream(domainParts, 0, domainParts.length - 2)//
+                .collect(Collectors.toList());
+
+        Collections.reverse(subdomainList);
+
+        return subdomainList.stream().collect(Collectors.joining("."));
+    }
 }

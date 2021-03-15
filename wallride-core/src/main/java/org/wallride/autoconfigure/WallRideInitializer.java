@@ -24,8 +24,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationStartingEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -33,13 +31,9 @@ import org.springframework.core.env.StandardEnvironment;
 import org.springframework.util.StringUtils;
 
 public class WallRideInitializer implements ApplicationListener<ApplicationStartingEvent> {
-	
-	Logger logger = LoggerFactory.getLogger(WallRideInitializer.class);
 
-	/**
-	 * @see ConfigFileApplicationListener#DEFAULT_SEARCH_LOCATIONS
-	 */
-	private static final String DEFAULT_CONFIG_SEARCH_LOCATIONS = "classpath:/,classpath:/config/,file:./,optional:file:./config/";
+	private static final String OPTIONAL = "optional:";
+	private static final String SPRING_CONFIG_ADDITIONAL_LOCATION = "spring.config.additional-location";
 
 	@Override
 	public void onApplicationEvent(ApplicationStartingEvent event) {
@@ -51,7 +45,7 @@ public class WallRideInitializer implements ApplicationListener<ApplicationStart
 		StandardEnvironment environment = new StandardEnvironment();
 
 		String home = environment.getProperty(WallRideProperties.HOME_PROPERTY, WallRideProperties.DEFAULT_HOME_PROPERTY);
-		System.out.println("WallRideProperties.HOME_PROPERTY " + home);
+		
 		if (!StringUtils.hasText(home)) {
 			//try to get config-File with wallride.home parameter under webroot
 			String configFileHome = getConfigFileHome(event);
@@ -64,15 +58,17 @@ public class WallRideInitializer implements ApplicationListener<ApplicationStart
 		if (!home.endsWith("/")) {
 			home = home + "/";
 		}
+		System.out.println("HOME_PROPERTY (" + WallRideProperties.HOME_PROPERTY + "): " + home);
 
 		String config = home + WallRideProperties.DEFAULT_CONFIG_PATH_NAME;
 		String media = home + WallRideProperties.DEFAULT_MEDIA_PATH_NAME;
 
+		System.setProperty(WallRideProperties.HOME_PROPERTY, home);
 		System.setProperty(WallRideProperties.CONFIG_LOCATION_PROPERTY, config);
 		System.setProperty(WallRideProperties.MEDIA_LOCATION_PROPERTY, media);
 
-		System.out.println(DEFAULT_CONFIG_SEARCH_LOCATIONS + ",optional:" + config);
-		System.setProperty("spring.config.additional-location", "optional:" + config);
+		System.out.println("CONFIG_LOCATION used: " + config);
+		System.setProperty(SPRING_CONFIG_ADDITIONAL_LOCATION, OPTIONAL + config);
 		
 		return environment;
 	}

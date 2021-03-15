@@ -16,24 +16,39 @@
 
 package org.wallride.autoconfigure;
 
+import java.io.Writer;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.thymeleaf.ThymeleafProperties;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.thymeleaf.IEngineConfiguration;
+import org.thymeleaf.IThrottledTemplateProcessor;
+import org.thymeleaf.TemplateSpec;
+import org.thymeleaf.context.IContext;
+import org.thymeleaf.context.IWebContext;
 import org.thymeleaf.dialect.IDialect;
 import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
 import org.thymeleaf.extras.springsecurity5.dialect.SpringSecurityDialect;
+import org.thymeleaf.spring5.ISpringTemplateEngine;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
+import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 import org.wallride.service.ArticleService;
 import org.wallride.service.CategoryService;
@@ -118,17 +133,24 @@ public class WallRideThymeleafConfiguration {
 		expressionObjectFactory.setWallRideProperties(wallRideProperties);
 		return expressionObjectFactory;
 	}
-
+	
 	@Bean(name = {"defaultTemplateResolver", "homePathTemplateResolver"})
 	public ITemplateResolver homePathTemplateResolver() {
-		WallRideResourceTemplateResolver resolver = new WallRideResourceTemplateResolver();
+		WallRideResourceThemeTemplateResolver resolver = new WallRideResourceThemeTemplateResolver();
 //		resolver.setResourceResolver(wallRideResourceResourceResolver);
 		resolver.setApplicationContext(applicationContext);
-		resolver.setPrefix(wallRideProperties.getHome() + "themes/default/templates/");
+		resolver.setPrefix(wallRideProperties.getHome() + WallRideResourceThemeTemplateResolver.THEMES_PATH);
+		System.out.println("WallRideResourceThemeTemplateResolver DEFAULT PATH: " + wallRideProperties.getHome() 
+			+ WallRideResourceThemeTemplateResolver.THEMES_PATH + WallRideResourceThemeTemplateResolver.DEFAULT_THEME 
+			+ WallRideResourceThemeTemplateResolver.TEMPLATES_FOLDER);
+		System.out.println("WallRideResourceThemeTemplateResolver THEME PATH: " + wallRideProperties.getHome() 
+			+ WallRideResourceThemeTemplateResolver.THEMES_PATH + "THEME_NAME"
+			+ WallRideResourceThemeTemplateResolver.TEMPLATES_FOLDER);
 		resolver.setSuffix(this.thymeleafProperties.getSuffix());
 		resolver.setTemplateMode(this.thymeleafProperties.getMode());
 		resolver.setCharacterEncoding(this.thymeleafProperties.getEncoding().name());
 		resolver.setCacheable(this.thymeleafProperties.isCache());
+		System.out.println("THEMES Cacheable: " + this.thymeleafProperties.isCache());
 		resolver.setOrder(1);
 		return resolver;
 	}
@@ -138,7 +160,7 @@ public class WallRideThymeleafConfiguration {
 		WallRideResourceTemplateResolver resolver = new WallRideResourceTemplateResolver();
 //		resolver.setResourceResolver(wallRideResourceResourceResolver);
 		resolver.setApplicationContext(applicationContext);
-		resolver.setPrefix(environment.getRequiredProperty("spring.thymeleaf.prefix.guest"));
+		resolver.setPrefix(environment.getRequiredProperty("spring.thymeleaf.prefix.guest"));		
 		resolver.setSuffix(this.thymeleafProperties.getSuffix());
 		resolver.setTemplateMode(this.thymeleafProperties.getMode());
 		resolver.setCharacterEncoding(this.thymeleafProperties.getEncoding().name());
@@ -148,8 +170,9 @@ public class WallRideThymeleafConfiguration {
 	}
 
 	@Bean
-	public SpringTemplateEngine templateEngine(WallRideThymeleafDialect wallRideThymeleafDialect) {
+	public DelegatingTemplateEngine templateEngine(WallRideThymeleafDialect wallRideThymeleafDialect) {
 		SpringTemplateEngine engine = new SpringTemplateEngine();
+		
 //		engine.setTemplateResolver(templateResolver());
 		Set<ITemplateResolver> templateResolvers = new LinkedHashSet<>();
 		templateResolvers.add(homePathTemplateResolver());
@@ -161,11 +184,11 @@ public class WallRideThymeleafConfiguration {
 		dialects.add(new Java8TimeDialect());
 		dialects.add(wallRideThymeleafDialect);
 		engine.setAdditionalDialects(dialects);
-		return engine;
+		return new DelegatingTemplateEngine(engine);
 	}
 
 	@Bean
-	public ThymeleafViewResolver thymeleafViewResolver(SpringTemplateEngine templateEngine) {
+	public ThymeleafViewResolver thymeleafViewResolver(DelegatingTemplateEngine templateEngine) {
 		ThymeleafViewResolver viewResolver = new ExtendedThymeleafViewResolver();
 		viewResolver.setTemplateEngine(templateEngine);
 		viewResolver.setViewNames(this.thymeleafProperties.getViewNames());
@@ -174,5 +197,119 @@ public class WallRideThymeleafConfiguration {
 		viewResolver.setCache(false);
 		viewResolver.setOrder(2);
 		return viewResolver;
+	}
+	
+	
+	public class DelegatingTemplateEngine implements ISpringTemplateEngine, MessageSourceAware {
+		
+		private Logger logger = LoggerFactory.getLogger(DelegatingTemplateEngine.class);
+		
+	    public SpringTemplateEngine delegate;
+
+	    public DelegatingTemplateEngine(SpringTemplateEngine delegate) {
+	        this.delegate = delegate;
+	    }
+
+	    @Override
+	    public void process(String template,
+	            Set<String> templateSelectors,
+	            IContext context,
+	            Writer writer) {
+	        Map<String, Object> resolutionAttributes = new HashMap<>();
+
+	        // add your attributes here
+	        logger.debug("DelegatingTemplateEngine process " + template + " context: " + context);
+	        if(context instanceof IWebContext) {
+	        	HttpServletRequest request = ((IWebContext)context).getRequest();
+	        	String theme = (String)request.getAttribute("theme");
+	        	if(theme!=null && !theme.isEmpty()) {
+	        		logger.debug("DelegatingTemplateEngine process ServerName: " + request.getServerName() + " session " + request.getSession().getAttributeNames());
+		        	resolutionAttributes.put("theme", theme);
+	        	}
+	        }
+
+			// create a null `TemplateMode` variable so that it can determine 
+			// the correct `TemplateSpec` constructor
+	        TemplateMode templateMode = null;
+	        final TemplateSpec templateSpec = 
+						new TemplateSpec(template, 
+										templateSelectors, 
+										templateMode, 
+										resolutionAttributes);
+	        
+			delegate.process(templateSpec, context, writer);
+	    }
+
+	    
+		// Excluded all overrides here, but basically they are just passthroughs 
+		// to the delegate's methods.
+	    
+		@Override
+		public IEngineConfiguration getConfiguration() {
+			// Just a passthrough
+			return delegate.getConfiguration();
+		}
+
+		@Override
+		public String process(String template, IContext context) {
+			// Just a passthrough
+			return delegate.process(template, context);
+		}
+
+		@Override
+		public String process(String template, Set<String> templateSelectors, IContext context) {
+			// Just a passthrough
+			return delegate.process(template, templateSelectors, context);
+		}
+
+		@Override
+		public String process(TemplateSpec templateSpec, IContext context) {
+			// Just a passthrough
+			return delegate.process(templateSpec, context);
+		}
+
+		@Override
+		public void process(String template, IContext context, Writer writer) {
+			// Just a passthrough
+			delegate.process(template, context, writer);
+		}
+
+		@Override
+		public void process(TemplateSpec templateSpec, IContext context, Writer writer) {
+			// Just a passthrough
+			delegate.process(templateSpec, context, writer);
+		}
+
+		@Override
+		public IThrottledTemplateProcessor processThrottled(String template, IContext context) {
+			// Just a passthrough
+			return delegate.processThrottled(template, context);
+		}
+
+		@Override
+		public IThrottledTemplateProcessor processThrottled(String template, Set<String> templateSelectors,
+				IContext context) {
+			// Just a passthrough
+			return delegate.processThrottled(template, templateSelectors, context);
+		}
+
+		@Override
+		public IThrottledTemplateProcessor processThrottled(TemplateSpec templateSpec, IContext context) {
+			// Just a passthrough
+			return delegate.processThrottled(templateSpec, context);
+		}
+
+		@Override
+		public void setTemplateEngineMessageSource(MessageSource templateEngineMessageSource) {
+			// Just a passthrough
+			delegate.setTemplateEngineMessageSource(templateEngineMessageSource);
+		}
+
+
+		@Override
+		public void setMessageSource(MessageSource messageSource) {
+			// Just a passthrough
+			delegate.setMessageSource(messageSource);
+		}
 	}
 }
